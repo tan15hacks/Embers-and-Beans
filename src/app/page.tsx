@@ -3,7 +3,7 @@
 
 
 
-
+import { CafeExperience } from "@/components/home/CafeExperience";
 import { FreshlyBaked } from "@/components/home/FreshlyBaked";
 import { SeasonalCollection } from "@/components/home/SeasonalCollection";
 import { Philosophy } from "@/components/home/Philosophy";
@@ -21,6 +21,7 @@ export default function Home() {
       <Philosophy />
       <SeasonalCollection />
       <FreshlyBaked />
+      <CafeExperience />
       <Footer />
     </main>
   );
