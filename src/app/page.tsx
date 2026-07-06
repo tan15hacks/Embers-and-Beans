@@ -1,20 +1,13 @@
-
-
-
-
-
-
-import { TeamSection } from "@/components/about/TeamSection";
-import { VisitNewsletter } from "@/components/home/VisitNewsletter";
-import { Testimonials } from "@/components/home/Testimonials";
 import { CafeExperience } from "@/components/home/CafeExperience";
-import { FreshlyBaked } from "@/components/home/FreshlyBaked";
-import { SeasonalCollection } from "@/components/home/SeasonalCollection";
-import { Philosophy } from "@/components/home/Philosophy";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { Hero } from "@/components/home/Hero";
 import { FeaturedCoffee } from "@/components/home/FeaturedCoffee";
+import { FreshlyBaked } from "@/components/home/FreshlyBaked";
+import { Hero } from "@/components/home/Hero";
+import { Philosophy } from "@/components/home/Philosophy";
+import { SeasonalCollection } from "@/components/home/SeasonalCollection";
+import { Testimonials } from "@/components/home/Testimonials";
+import { VisitNewsletter } from "@/components/home/VisitNewsletter";
+import { Footer } from "@/components/layout/Footer";
+import { Navbar } from "@/components/layout/Navbar";
 
 export default function Home() {
   return (
@@ -28,7 +21,6 @@ export default function Home() {
       <CafeExperience />
       <Testimonials />
       <VisitNewsletter />
-      <TeamSection />
       <Footer />
     </main>
   );
