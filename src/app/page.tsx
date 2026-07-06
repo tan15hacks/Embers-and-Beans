@@ -1,3 +1,15 @@
+
+
+
+
+
+
+import { TeamSection } from "@/components/about/TeamSection";
+import { VisitNewsletter } from "@/components/home/VisitNewsletter";
+import { Testimonials } from "@/components/home/Testimonials";
+import { CafeExperience } from "@/components/home/CafeExperience";
+import { FreshlyBaked } from "@/components/home/FreshlyBaked";
+import { SeasonalCollection } from "@/components/home/SeasonalCollection";
 import { Philosophy } from "@/components/home/Philosophy";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -11,6 +23,12 @@ export default function Home() {
       <Hero />
       <FeaturedCoffee />
       <Philosophy />
+      <SeasonalCollection />
+      <FreshlyBaked />
+      <CafeExperience />
+      <Testimonials />
+      <VisitNewsletter />
+      <TeamSection />
       <Footer />
     </main>
   );

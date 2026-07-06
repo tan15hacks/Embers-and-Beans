@@ -19,11 +19,20 @@ export default function MenuPage() {
             <p className="mb-6 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.25em] text-[#E5C7A1]">
               <Sparkles size={18} /> Menu
             </p>
+
+            <h1 className="font-[var(--font-display)] text-6xl font-semibold leading-[0.95] tracking-tight md:text-8xl">
+              Slow-crafted drinks, warm bites.
+            </h1>
+
+            <p className="mt-8 max-w-2xl text-lg leading-8 text-[#F8F4EF]/75">
+              Explore our signature coffee, everyday brews, chilled favorites,
+              and pastries made for quiet mornings and long conversations.
             <h1 className="font-[var(--font-display)] text-6xl font-semibold leading-[0.95] tracking-tight md:text-8xl">
               Slow-crafted drinks, warm bites.
             </h1>
             <p className="mt-8 max-w-2xl text-lg leading-8 text-[#F8F4EF]/75">
               Explore our signature coffee, everyday brews, chilled favorites, and pastries made for quiet mornings and long conversations.
+
             </p>
           </div>
         </Container>
@@ -35,7 +44,18 @@ export default function MenuPage() {
             <aside className="rounded-[2rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-8 shadow-[0_20px_80px_rgba(43,30,24,0.08)] lg:sticky lg:top-28">
               <div className="flex size-14 items-center justify-center rounded-full bg-[#B7793C]/15 text-[#B7793C]">
                 <Coffee size={26} />
-              </div>
+              </div
+
+              <h2 className="mt-8 font-[var(--font-display)] text-4xl font-semibold">
+                Order ahead, pick up fresh.
+              </h2>
+
+              <p className="mt-4 leading-7 text-[#4A342A]/75">
+                Prices are listed in Philippine pesos. For advance orders, call
+                or message the shop and we will prepare your drinks close to
+                pickup time.
+              </p>
+
               <h2 className="mt-8 font-[var(--font-display)] text-4xl font-semibold">
                 Order ahead, pick up fresh.
               </h2>
@@ -59,6 +79,14 @@ export default function MenuPage() {
                   <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#B7793C]">
                     {section.eyebrow}
                   </p>
+                  <div className="mt-3">
+                    <h2 className="font-[var(--font-display)] text-4xl font-semibold md:text-5xl">
+                      {section.title}
+                    </h2>
+
+                    <p className="mt-3 max-w-xl leading-7 text-[#4A342A]/70">
+                      {section.description}
+                    </p>
                   <div className="mt-3 flex flex-col justify-between gap-4 md:flex-row md:items-end">
                     <div>
                       <h2 className="font-[var(--font-display)] text-4xl font-semibold md:text-5xl">
@@ -80,6 +108,7 @@ export default function MenuPage() {
                           <h3 className="font-[var(--font-display)] text-3xl font-semibold">
                             {item.name}
                           </h3>
+
                           <p className="mt-2 leading-7 text-[#4A342A]/70">
                             {item.description}
                           </p>
@@ -100,4 +129,4 @@ export default function MenuPage() {
       <Footer />
     </main>
   );
-}
+
