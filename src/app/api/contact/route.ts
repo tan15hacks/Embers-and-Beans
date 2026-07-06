@@ -1,16 +1,22 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
-import { contactFormSchema, contactTopicLabels } from "@/lib/contact";
+import {
+  contactTopicLabels,
+  validateContactForm,
+  type ContactFormValues,
+} from "@/lib/contact";
 import { siteConfig } from "@/data/site";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const result = contactFormSchema.safeParse(body);
+    const result = validateContactForm(body);
 
     if (!result.success) {
       return NextResponse.json(
-        { message: "Please check the form and try again." },
+        {
+          message: "Please check the form and try again.",
+          errors: result.errors,
+        },
         { status: 400 },
       );
     }
@@ -34,14 +40,57 @@ export async function POST(request: Request) {
       });
     }
 
-    const resend = new Resend(apiKey);
-    const topicLabel = contactTopicLabels[data.topic];
-    const subject = `New ${topicLabel} message from ${data.name}`;
+    const response = await sendWithResend({
+      apiKey,
+      fromEmail,
+      toEmail,
+      data,
+    });
 
-    await resend.emails.send({
+    if (!response.ok) {
+      const errorPayload = await response.text();
+      console.error("Resend error", errorPayload);
+
+      return NextResponse.json(
+        { message: "Message received, but email delivery failed. Please try again later." },
+        { status: 502 },
+      );
+    }
+
+    return NextResponse.json({ message: "Thanks — your message was sent." });
+  } catch (error) {
+    console.error("Contact form error", error);
+    return NextResponse.json(
+      { message: "Something went wrong. Please try again later." },
+      { status: 500 },
+    );
+  }
+}
+
+async function sendWithResend({
+  apiKey,
+  fromEmail,
+  toEmail,
+  data,
+}: {
+  apiKey: string;
+  fromEmail: string;
+  toEmail: string;
+  data: ContactFormValues;
+}) {
+  const topicLabel = contactTopicLabels[data.topic];
+  const subject = `New ${topicLabel} message from ${data.name}`;
+
+  return fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
       from: fromEmail,
-      to: toEmail,
-      replyTo: data.email,
+      to: [toEmail],
+      reply_to: data.email,
       subject,
       text: [
         `Name: ${data.name}`,
@@ -64,16 +113,8 @@ export async function POST(request: Request) {
           <p>${escapeHtml(data.message).replaceAll("\n", "<br />")}</p>
         </div>
       `,
-    });
-
-    return NextResponse.json({ message: "Thanks — your message was sent." });
-  } catch (error) {
-    console.error("Contact form error", error);
-    return NextResponse.json(
-      { message: "Something went wrong. Please try again later." },
-      { status: 500 },
-    );
-  }
+    }),
+  });
 }
 
 function escapeHtml(value: string) {
