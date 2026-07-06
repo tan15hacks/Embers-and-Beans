@@ -4,14 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
+import { navLinks } from "@/data/site";
 import { Container } from "./Container";
-
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/menu", label: "Menu" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,8 +15,8 @@ export function Navbar() {
       <Container className="flex h-20 items-center justify-between">
         <Logo />
 
-        <nav className="hidden items-center gap-8 md:flex">
-          {links.map((link) => (
+        <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -54,7 +48,7 @@ export function Navbar() {
       {isOpen && (
         <div className="border-t border-[#2B1E18]/10 bg-[#F8F4EF] md:hidden">
           <Container className="flex flex-col gap-3 py-5">
-            {links.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
