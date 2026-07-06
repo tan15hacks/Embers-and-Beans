@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Flame, Leaf, Users } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/layout/Container";
+import { siteConfig } from "@/data/site";
+
+export const metadata: Metadata = {
+  title: "About",
+  description: `Learn the story, values, and daily rhythm behind ${siteConfig.name}.`,
+  alternates: {
+    canonical: "/about",
+  },
+};
 
 const values = [
   {
