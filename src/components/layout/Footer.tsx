@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, MapPin, Camera } from "lucide-react";
+import { Camera, Mail, MapPin, Phone } from "lucide-react";
 import { Container } from "./Container";
 
 export function Footer() {
@@ -21,7 +21,10 @@ export function Footer() {
               Visit
             </h3>
             <p className="mt-4 flex gap-2 text-sm text-[#F8F4EF]/70">
-              <MapPin size={18} /> 123 Roastery Lane, Brewtown
+              <MapPin size={18} /> Legazpi City, Albay, Philippines
+            </p>
+            <p className="mt-3 text-sm text-[#F8F4EF]/60">
+              Open daily · 7:00 AM – 9:00 PM
             </p>
           </div>
 
@@ -30,6 +33,9 @@ export function Footer() {
               Connect
             </h3>
             <div className="mt-4 flex flex-col gap-3 text-sm text-[#F8F4EF]/70">
+              <Link href="tel:+639123456789" className="flex gap-2 hover:text-white">
+                <Phone size={18} /> +63 912 345 6789
+              </Link>
               <Link href="mailto:hello@emberandbean.com" className="flex gap-2 hover:text-white">
                 <Mail size={18} /> hello@emberandbean.com
               </Link>
@@ -41,7 +47,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t border-white/10 pt-6 text-sm text-[#F8F4EF]/50">
-          © 2025 Ember & Bean Coffee Co. All rights reserved.
+          © 2026 Ember & Bean Coffee Co. All rights reserved.
         </div>
       </Container>
     </footer>
