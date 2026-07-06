@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { Menu, X, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
+import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { Container } from "./Container";
-import { useScrolled } from "@/hooks/useScrolled";
-import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/", label: "Home" },
@@ -16,24 +14,11 @@ const links = [
 ];
 
 export function Navbar() {
-  const scrolled = useScrolled(24);
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header
-      className={cn(
-        "fixed left-0 top-0 z-50 w-full transition-all duration-300",
-        scrolled
-          ? "border-b border-[color:var(--border)] bg-background/85 shadow-sm backdrop-blur-xl"
-          : "bg-background/70 backdrop-blur-md"
-      )}
-    >
-      <Container
-        className={cn(
-          "flex items-center justify-between transition-all duration-300",
-          scrolled ? "h-16" : "h-20"
-        )}
-      >
+    <header className="fixed left-0 top-0 z-50 w-full border-b border-[#2B1E18]/10 bg-[#F8F4EF]/85 backdrop-blur-xl">
+      <Container className="flex h-20 items-center justify-between">
         <Logo />
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -41,67 +26,53 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="group relative text-sm font-semibold text-muted transition hover:text-foreground"
+              className="text-sm font-medium text-[#2B1E18]/70 transition hover:text-[#2B1E18]"
             >
               {link.label}
-              <span className="absolute -bottom-2 left-0 h-px w-0 bg-secondary transition-all duration-300 group-hover:w-full" />
             </Link>
           ))}
         </nav>
 
-        <div className="hidden md:block">
-          <Link
-            href="/menu"
-            className="inline-flex h-12 items-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:bg-muted"
-          >
-            Order Ahead <ArrowRight className="ml-2" size={17} />
-          </Link>
-        </div>
+        <Link
+          href="/menu"
+          className="hidden rounded-full bg-[#2B1E18] px-6 py-3 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A] md:inline-flex"
+        >
+          Order Ahead
+        </Link>
 
         <button
-          onClick={() => setOpen(true)}
-          className="flex size-11 items-center justify-center rounded-full border border-[color:var(--border)] bg-surface md:hidden"
-          aria-label="Open menu"
+          type="button"
+          aria-label="Toggle navigation menu"
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen((current) => !current)}
+          className="inline-flex size-11 items-center justify-center rounded-full border border-[#2B1E18]/10 text-[#2B1E18] transition hover:bg-[#2B1E18]/5 md:hidden"
         >
-          <Menu size={22} />
+          {isOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </Container>
 
-      {open && (
-        <div className="fixed inset-0 z-50 bg-primary/40 backdrop-blur-sm md:hidden">
-          <div className="ml-auto h-screen w-[82%] max-w-sm bg-background p-6 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <Logo />
-              <button
-                onClick={() => setOpen(false)}
-                className="flex size-10 items-center justify-center rounded-full border border-[color:var(--border)] bg-surface"
-                aria-label="Close menu"
+      {isOpen && (
+        <div className="border-t border-[#2B1E18]/10 bg-[#F8F4EF] md:hidden">
+          <Container className="flex flex-col gap-3 py-5">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className="rounded-2xl px-4 py-3 text-sm font-semibold text-[#2B1E18]/75 transition hover:bg-[#2B1E18]/5 hover:text-[#2B1E18]"
               >
-                <X size={20} />
-              </button>
-            </div>
-
-            <nav className="mt-12 flex flex-col gap-6">
-              {links.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="font-display text-4xl font-semibold text-foreground"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
+                {link.label}
+              </Link>
+            ))}
 
             <Link
               href="/menu"
-              onClick={() => setOpen(false)}
-              className="mt-12 inline-flex h-14 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground"
+              onClick={() => setIsOpen(false)}
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-[#2B1E18] px-6 py-3 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
             >
-              Order Ahead <ArrowRight className="ml-2" size={18} />
+              Order Ahead
             </Link>
-          </div>
+          </Container>
         </div>
       )}
     </header>
