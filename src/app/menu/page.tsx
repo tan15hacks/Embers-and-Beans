@@ -44,7 +44,7 @@ export default function MenuPage() {
               </p>
               <Link
                 href="/contact"
-                className="mt-8 inline-flex h-13 items-center justify-center rounded-full bg-[#2B1E18] px-7 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
+                className="mt-8 inline-flex h-14 items-center justify-center rounded-full bg-[#2B1E18] px-7 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
               >
                 Contact the Shop <ArrowRight className="ml-2" size={18} />
               </Link>
