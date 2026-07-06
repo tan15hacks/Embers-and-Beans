@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock3, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Clock3, Mail, MapPin, Phone } from "lucide-react";
+import { ContactForm } from "@/components/contact/ContactForm";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/layout/Container";
@@ -93,9 +94,9 @@ export default function ContactPage() {
 
       <section className="pb-24">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
             <div className="overflow-hidden rounded-[2.5rem] border border-[#2B1E18]/10 bg-[#FFFDFB] shadow-[0_30px_100px_rgba(43,30,24,0.12)]">
-              <div className="relative min-h-[520px] p-8 text-[#FFFDFB]">
+              <div className="relative min-h-[620px] p-8 text-[#FFFDFB]">
                 <Image
                   src="/images/contacts/seating.png"
                   alt="Cozy seating area inside Ember and Bean"
@@ -103,8 +104,8 @@ export default function ContactPage() {
                   sizes="(min-width: 1024px) 45vw, 100vw"
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#2B1E18]/85 via-[#2B1E18]/25 to-transparent" />
-                <div className="relative flex min-h-[456px] flex-col justify-end">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#2B1E18]/90 via-[#2B1E18]/30 to-transparent" />
+                <div className="relative flex min-h-[556px] flex-col justify-end">
                   <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#E5C7A1]">
                     Find Us
                   </p>
@@ -114,51 +115,37 @@ export default function ContactPage() {
                   <p className="mt-5 max-w-sm leading-7 text-[#F8F4EF]/75">
                     Visit for quiet mornings, unhurried conversations, and coffee prepared with care.
                   </p>
+
+                  <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                    <Link
+                      href={siteConfig.phoneHref}
+                      className="inline-flex h-12 items-center justify-center rounded-full bg-[#F8F4EF] px-5 text-sm font-semibold text-[#2B1E18] transition hover:bg-[#E5C7A1]"
+                    >
+                      <Phone className="mr-2" size={17} /> Call
+                    </Link>
+                    <Link
+                      href="mailto:hello@emberandbean.com"
+                      className="inline-flex h-12 items-center justify-center rounded-full border border-[#F8F4EF]/30 px-5 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#FFFDFB]/10"
+                    >
+                      <Mail className="mr-2" size={17} /> Email
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="rounded-[2.5rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-8 shadow-[0_30px_100px_rgba(43,30,24,0.1)] sm:p-10">
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#B7793C]">
-                Order Ahead
+                Send a Message
               </p>
               <h2 className="mt-5 font-[var(--font-display)] text-5xl font-semibold md:text-6xl">
-                Message us before you drop by.
+                Tell us what to prepare.
               </h2>
               <p className="mt-5 leading-8 text-[#4A342A]/75">
-                For pickup orders, event boxes, or table questions, contact the shop directly. We’ll confirm availability, pickup time, and total price before preparing your order.
+                Use the form for pickup orders, event boxes, visit questions, or general inquiries. We’ll respond through email as soon as the shop can confirm availability.
               </p>
 
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                <Link
-                  href={siteConfig.phoneHref}
-                  className="inline-flex h-14 items-center justify-center rounded-full bg-[#2B1E18] px-7 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
-                >
-                  <Phone className="mr-2" size={18} /> Call Now
-                </Link>
-                <Link
-                  href="mailto:hello@emberandbean.com"
-                  className="inline-flex h-14 items-center justify-center rounded-full border border-[#2B1E18]/15 px-7 text-sm font-semibold text-[#2B1E18] transition hover:bg-[#2B1E18]/5"
-                >
-                  <Mail className="mr-2" size={18} /> Send Email
-                </Link>
-              </div>
-
-              <div className="mt-10 rounded-[2rem] bg-[#F8F4EF] p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#B7793C]/15 text-[#B7793C]">
-                    <MessageCircle size={22} />
-                  </div>
-                  <div>
-                    <h3 className="font-[var(--font-display)] text-3xl font-semibold">
-                      Friendly note
-                    </h3>
-                    <p className="mt-2 leading-7 text-[#4A342A]/70">
-                      Final Messenger, Maps, and order-form integrations can plug into this section without changing the page layout.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <ContactForm />
             </div>
           </div>
         </Container>
