@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -15,12 +16,21 @@ export function SeasonalCollection() {
         />
 
         <div className="mt-16 grid gap-6 md:grid-cols-3">
-          {seasonalDrinks.map((drink) => (
+          {seasonalDrinks.map((drink, index) => (
             <article
               key={drink.name}
               className="group overflow-hidden rounded-[2rem] border border-[color:var(--border)] bg-surface p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-soft)]"
             >
-              <div className="relative h-72 rounded-[1.5rem] bg-gradient-to-br from-accent via-secondary to-primary">
+              <div className="relative h-72 overflow-hidden rounded-[1.5rem] bg-accent">
+                <Image
+                  src={drink.image}
+                  alt={drink.imageAlt}
+                  fill
+                  priority={index === 0}
+                  sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                  className="object-cover transition duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/35 via-transparent to-transparent" />
                 <span className="absolute left-5 top-5 rounded-full bg-primary/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground backdrop-blur">
                   {drink.tag}
                 </span>
