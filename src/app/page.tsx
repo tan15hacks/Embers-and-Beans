@@ -3,6 +3,8 @@
 
 
 
+
+import { FreshlyBaked } from "@/components/home/FreshlyBaked";
 import { SeasonalCollection } from "@/components/home/SeasonalCollection";
 import { Philosophy } from "@/components/home/Philosophy";
 import { Navbar } from "@/components/layout/Navbar";
@@ -18,6 +20,7 @@ export default function Home() {
       <FeaturedCoffee />
       <Philosophy />
       <SeasonalCollection />
+      <FreshlyBaked />
       <Footer />
     </main>
   );
