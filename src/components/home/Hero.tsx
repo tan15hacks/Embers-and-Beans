@@ -1,11 +1,8 @@
-
-
-
-
-
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, Clock, Heart, Leaf, Star } from "lucide-react";
 import { Container } from "@/components/layout/Container";
+import { Reveal } from "@/components/shared/Reveal";
 
 const stats = [
   { icon: Clock, value: "7:00 AM", label: "Doors open daily" },
@@ -22,52 +19,59 @@ export function Hero() {
         alt="Warm artisan coffee shop interior with espresso bar and morning light"
         fill
         priority
+        sizes="100vw"
         className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1f140f]/95 via-[#2B1E18]/70 to-[#2B1E18]/20" />
-        <div className="absolute inset-0 noise opacity-15" />
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#1f140f]/95 via-[#2B1E18]/70 to-[#2B1E18]/20" />
+      <div className="absolute inset-0 noise opacity-15" />
+
       <Container className="relative z-10 grid min-h-[calc(100vh-5rem)] items-center py-20">
         <div className="max-w-3xl">
-          <p className="mb-6 text-sm font-semibold uppercase tracking-[0.25em] text-[#E5C7A1]">
-            Small-batch coffee. Big-hearted hospitality.
-          </p>
+          <Reveal>
+            <p className="mb-6 text-sm font-semibold uppercase tracking-[0.25em] text-[#E5C7A1]">
+              Small-batch coffee. Big-hearted hospitality.
+            </p>
 
-          <h1 className="font-[var(--font-display)] text-6xl font-semibold leading-[0.92] tracking-tight sm:text-7xl lg:text-8xl">
-            Crafted coffee for slow,{" "}
-            <span className="italic text-[#B7793C]">golden</span> mornings.
-          </h1>
+            <h1 className="font-[var(--font-display)] text-6xl font-semibold leading-[0.92] tracking-tight sm:text-7xl lg:text-8xl">
+              Crafted coffee for slow, <span className="italic text-[#B7793C]">golden</span> mornings.
+            </h1>
 
-          <p className="mt-8 max-w-xl text-lg leading-8 text-[#F8F4EF]/80">
-            Specialty coffee, fresh pastries, and a space that feels like home.
-          </p>
+            <p className="mt-8 max-w-xl text-lg leading-8 text-[#F8F4EF]/80">
+              Specialty coffee, fresh pastries, and a space that feels like home.
+            </p>
+          </Reveal>
 
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <a
-              href="/menu"
-              className="inline-flex h-14 items-center justify-center rounded-full border border-[#E5C7A1]/40 bg-[#B7793C]/25 px-8 text-sm font-semibold text-white backdrop-blur transition hover:bg-[#B7793C]/40"
-            >
-              Explore the Menu <ArrowRight className="ml-2" size={18} />
-            </a>
+          <Reveal delay={0.08}>
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+              <Link
+                href="/menu"
+                className="inline-flex h-14 items-center justify-center rounded-full border border-[#E5C7A1]/40 bg-[#B7793C]/25 px-8 text-sm font-semibold text-white backdrop-blur transition hover:bg-[#B7793C]/40"
+              >
+                Explore the Menu <ArrowRight className="ml-2" size={18} />
+              </Link>
 
-            <a
-              href="/about"
-              className="inline-flex h-14 items-center justify-center rounded-full border border-white/30 px-8 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              Our Story
-            </a>
-          </div>
+              <Link
+                href="/about"
+                className="inline-flex h-14 items-center justify-center rounded-full border border-white/30 px-8 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Our Story
+              </Link>
+            </div>
+          </Reveal>
 
-          <div className="mt-10 grid max-w-4xl gap-4 rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-md sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((item) => (
-              <div key={item.value} className="flex items-start gap-3">
-                <item.icon className="mt-1 text-[#E5C7A1]" size={20} />
-                <div>
-                  <p className="text-xl font-semibold text-[#E5C7A1]">{item.value}</p>
-                  <p className="mt-1 text-sm text-white/70">{item.label}</p>
+          <Reveal delay={0.16}>
+            <div className="mt-10 grid max-w-4xl gap-4 rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-md sm:grid-cols-2 lg:grid-cols-4">
+              {stats.map((item) => (
+                <div key={item.value} className="flex items-start gap-3">
+                  <item.icon className="mt-1 text-[#E5C7A1]" size={20} />
+                  <div>
+                    <p className="text-xl font-semibold text-[#E5C7A1]">{item.value}</p>
+                    <p className="mt-1 text-sm text-white/70">{item.label}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </Container>
     </section>
