@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Clock3, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
@@ -5,6 +6,14 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/layout/Container";
 import { siteConfig } from "@/data/site";
+
+export const metadata: Metadata = {
+  title: "Contact",
+  description: `Visit ${siteConfig.name} in ${siteConfig.location}, or contact the shop for pickup orders and table questions.`,
+  alternates: {
+    canonical: "/contact",
+  },
+};
 
 const contactItems = [
   {
