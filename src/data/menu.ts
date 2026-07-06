@@ -18,22 +18,22 @@ export const featuredDrinks: MenuItem[] = [
     name: "Honey Oat Latte",
     description: "Espresso, oat milk, wildflower honey, cinnamon.",
     price: "₱185",
-    image: "/images/contacts/counter.png",
-    imageAlt: "Honey oat latte served on a warm café counter",
+    image: "/images/drinks/honey-oat-latte.jpg",
+    imageAlt: "Honey oat latte with latte art on a warm walnut café table",
   },
   {
     name: "Brown Sugar Cold Brew",
     description: "Slow-steeped cold brew with brown sugar cream.",
     price: "₱175",
-    image: "/images/cafe/interior.png",
-    imageAlt: "Cold coffee enjoyed inside a warm modern café interior",
+    image: "/images/drinks/brown-sugar-cold-brew.jpg",
+    imageAlt: "Brown sugar cold brew with cream foam in golden café light",
   },
   {
     name: "Maple Ember Cappuccino",
     description: "Velvety espresso, maple, steamed milk, cocoa dust.",
     price: "₱180",
-    image: "/images/hero/hero-cafe.png",
-    imageAlt: "Cappuccino atmosphere inside Ember and Bean in morning light",
+    image: "/images/drinks/maple-ember-cappuccino.jpg",
+    imageAlt: "Maple ember cappuccino with cocoa dust on a walnut café table",
   },
 ];
 
