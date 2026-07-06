@@ -2,6 +2,10 @@
 
 
 
+
+
+
+import { VisitNewsletter } from "@/components/home/VisitNewsletter";
 import { Testimonials } from "@/components/home/Testimonials";
 import { CafeExperience } from "@/components/home/CafeExperience";
 import { FreshlyBaked } from "@/components/home/FreshlyBaked";
@@ -23,6 +27,7 @@ export default function Home() {
       <FreshlyBaked />
       <CafeExperience />
       <Testimonials />
+      <VisitNewsletter />
       <Footer />
     </main>
   );
