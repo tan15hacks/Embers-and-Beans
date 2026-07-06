@@ -1,5 +1,9 @@
-import { Logo } from "@/components/brand/Logo";
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
+import { Logo } from "@/components/brand/Logo";
 import { Container } from "./Container";
 
 const links = [
@@ -10,10 +14,11 @@ const links = [
 ];
 
 export function Navbar() {
-  return (
-    <header className="fixed left-0 top-0 z-50 w-full border-b border-[#2B1E18]/10 bg-[#F8F4EF]/80 backdrop-blur-xl">
-      <Container className="flex h-20 items-center justify-between">
+  const [isOpen, setIsOpen] = useState(false);
 
+  return (
+    <header className="fixed left-0 top-0 z-50 w-full border-b border-[#2B1E18]/10 bg-[#F8F4EF]/85 backdrop-blur-xl">
+      <Container className="flex h-20 items-center justify-between">
         <Logo />
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -35,7 +40,41 @@ export function Navbar() {
           Order Ahead
         </Link>
 
+        <button
+          type="button"
+          aria-label="Toggle navigation menu"
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen((current) => !current)}
+          className="inline-flex size-11 items-center justify-center rounded-full border border-[#2B1E18]/10 text-[#2B1E18] transition hover:bg-[#2B1E18]/5 md:hidden"
+        >
+          {isOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
       </Container>
+
+      {isOpen && (
+        <div className="border-t border-[#2B1E18]/10 bg-[#F8F4EF] md:hidden">
+          <Container className="flex flex-col gap-3 py-5">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className="rounded-2xl px-4 py-3 text-sm font-semibold text-[#2B1E18]/75 transition hover:bg-[#2B1E18]/5 hover:text-[#2B1E18]"
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            <Link
+              href="/menu"
+              onClick={() => setIsOpen(false)}
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-[#2B1E18] px-6 py-3 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
+            >
+              Order Ahead
+            </Link>
+          </Container>
+        </div>
+      )}
     </header>
   );
 }
