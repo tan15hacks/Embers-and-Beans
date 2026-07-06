@@ -1,3 +1,9 @@
+
+
+
+
+
+import Image from "next/image";
 import { ArrowRight, Clock, Heart, Leaf, Star } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 
@@ -11,9 +17,15 @@ const stats = [
 export function Hero() {
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#2B1E18] pt-20 text-[#FFFDFB]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_35%,#B7793C_0%,transparent_38%),linear-gradient(90deg,#1f140f_0%,#2B1E18_42%,#5b341e_100%)]" />
-      <div className="absolute inset-0 noise opacity-20" />
-
+      <Image
+        src="/images/hero/hero-cafe.png"
+        alt="Warm artisan coffee shop interior with espresso bar and morning light"
+        fill
+        priority
+        className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1f140f]/95 via-[#2B1E18]/70 to-[#2B1E18]/20" />
+        <div className="absolute inset-0 noise opacity-15" />
       <Container className="relative z-10 grid min-h-[calc(100vh-5rem)] items-center py-20">
         <div className="max-w-3xl">
           <p className="mb-6 text-sm font-semibold uppercase tracking-[0.25em] text-[#E5C7A1]">

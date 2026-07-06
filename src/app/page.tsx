@@ -1,3 +1,9 @@
+
+
+
+
+
+import { SeasonalCollection } from "@/components/home/SeasonalCollection";
 import { Philosophy } from "@/components/home/Philosophy";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -11,6 +17,7 @@ export default function Home() {
       <Hero />
       <FeaturedCoffee />
       <Philosophy />
+      <SeasonalCollection />
       <Footer />
     </main>
   );
