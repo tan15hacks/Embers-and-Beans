@@ -2,6 +2,8 @@ export type MenuItem = {
   name: string;
   description: string;
   price: string;
+  image?: string;
+  imageAlt?: string;
 };
 
 export type MenuSection = {
@@ -16,16 +18,22 @@ export const featuredDrinks: MenuItem[] = [
     name: "Honey Oat Latte",
     description: "Espresso, oat milk, wildflower honey, cinnamon.",
     price: "₱185",
+    image: "/images/contacts/counter.png",
+    imageAlt: "Honey oat latte served on a warm café counter",
   },
   {
     name: "Brown Sugar Cold Brew",
     description: "Slow-steeped cold brew with brown sugar cream.",
     price: "₱175",
+    image: "/images/cafe/interior.png",
+    imageAlt: "Cold coffee enjoyed inside a warm modern café interior",
   },
   {
     name: "Maple Ember Cappuccino",
     description: "Velvety espresso, maple, steamed milk, cocoa dust.",
     price: "₱180",
+    image: "/images/hero/hero-cafe.png",
+    imageAlt: "Cappuccino atmosphere inside Ember and Bean in morning light",
   },
 ];
 
@@ -70,6 +78,8 @@ export const pastries: MenuItem[] = [
     name: "Almond Croissant",
     description: "Buttery laminated pastry with toasted almond cream.",
     price: "₱145",
+    image: "/images/pastries/croissant.png",
+    imageAlt: "Buttery almond croissant on a ceramic plate",
   },
   {
     name: "Cardamom Morning Bun",
