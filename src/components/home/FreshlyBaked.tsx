@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/Button";
 
 export function FreshlyBaked() {
   return (
-    <Section className="bg-[#FFFDFB]">
+    <Section className="bg-surface">
       <Container>
         <div className="grid items-center gap-16 lg:grid-cols-2">
-          <div className="relative overflow-hidden rounded-[2rem]">
+          <div className="overflow-hidden rounded-[2rem] shadow-[var(--shadow-soft)]">
             <Image
-              src="/images/pastries/croissant.jpg"
-              alt="Fresh butter croissant"
-              width={900}
-              height={700}
+              src="/images/pastries/croissant.png"
+              alt="Fresh butter croissant on a ceramic plate"
+              width={1200}
+              height={800}
               className="h-full w-full object-cover"
             />
           </div>
@@ -29,14 +29,12 @@ export function FreshlyBaked() {
 
             <p className="mt-6 text-lg leading-8 text-muted">
               Every morning begins before sunrise with pastries prepared fresh
-              for the day's first guests—from buttery croissants to seasonal
+              for the day’s first guests — from buttery croissants to seasonal
               morning buns.
             </p>
 
             <div className="mt-10">
-              <Button href="/menu">
-                See Today's Bakery
-              </Button>
+              <Button href="/menu">See Today’s Bakery</Button>
             </div>
           </div>
         </div>
