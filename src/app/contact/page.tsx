@@ -1,29 +1,31 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Clock3, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/layout/Container";
+import { siteConfig } from "@/data/site";
 
 const contactItems = [
   {
     icon: MapPin,
     title: "Visit",
-    text: "Legazpi City, Albay, Philippines",
+    text: siteConfig.location,
   },
   {
     icon: Phone,
     title: "Call",
-    text: "+63 912 345 6789",
+    text: siteConfig.phone,
   },
   {
     icon: Mail,
     title: "Email",
-    text: "hello@emberandbean.com",
+    text: siteConfig.email,
   },
   {
     icon: Clock3,
     title: "Hours",
-    text: "Open daily · 7:00 AM – 9:00 PM",
+    text: siteConfig.hours,
   },
 ];
 
@@ -33,8 +35,16 @@ export default function ContactPage() {
       <Navbar />
 
       <section className="relative overflow-hidden bg-[#2B1E18] pt-36 text-[#FFFDFB]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_30%,#B7793C_0%,transparent_35%),linear-gradient(120deg,#1f140f_0%,#2B1E18_50%,#5b341e_100%)]" />
-        <div className="absolute inset-0 noise opacity-20" />
+        <Image
+          src="/images/contacts/store-front.png"
+          alt="Warm Ember and Bean storefront in soft morning light"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1f140f]/95 via-[#2B1E18]/75 to-[#2B1E18]/25" />
+        <div className="absolute inset-0 noise opacity-15" />
 
         <Container className="relative z-10 py-24">
           <div className="max-w-3xl">
@@ -76,20 +86,24 @@ export default function ContactPage() {
         <Container>
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="overflow-hidden rounded-[2.5rem] border border-[#2B1E18]/10 bg-[#FFFDFB] shadow-[0_30px_100px_rgba(43,30,24,0.12)]">
-              <div className="relative min-h-[420px] bg-[#2B1E18] p-8 text-[#FFFDFB]">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,#B7793C_0%,transparent_36%),linear-gradient(145deg,#2B1E18_0%,#4A342A_58%,#1f140f_100%)]" />
-                <div className="absolute inset-0 noise opacity-20" />
-                <div className="relative flex min-h-[360px] flex-col justify-between">
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#E5C7A1]">
-                      Find Us
-                    </p>
-                    <h2 className="mt-5 font-[var(--font-display)] text-5xl font-semibold leading-tight">
-                      A warm corner in Albay.
-                    </h2>
-                  </div>
-                  <p className="max-w-sm leading-7 text-[#F8F4EF]/70">
-                    Replace this panel with an embedded map when the final shop pin is ready.
+              <div className="relative min-h-[520px] p-8 text-[#FFFDFB]">
+                <Image
+                  src="/images/contacts/seating.png"
+                  alt="Cozy seating area inside Ember and Bean"
+                  fill
+                  sizes="(min-width: 1024px) 45vw, 100vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#2B1E18]/85 via-[#2B1E18]/25 to-transparent" />
+                <div className="relative flex min-h-[456px] flex-col justify-end">
+                  <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#E5C7A1]">
+                    Find Us
+                  </p>
+                  <h2 className="mt-5 font-[var(--font-display)] text-5xl font-semibold leading-tight">
+                    A warm corner in Albay.
+                  </h2>
+                  <p className="mt-5 max-w-sm leading-7 text-[#F8F4EF]/75">
+                    Visit for quiet mornings, unhurried conversations, and coffee prepared with care.
                   </p>
                 </div>
               </div>
@@ -108,7 +122,7 @@ export default function ContactPage() {
 
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 <Link
-                  href="tel:+639123456789"
+                  href={siteConfig.phoneHref}
                   className="inline-flex h-14 items-center justify-center rounded-full bg-[#2B1E18] px-7 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
                 >
                   <Phone className="mr-2" size={18} /> Call Now
@@ -131,7 +145,7 @@ export default function ContactPage() {
                       Friendly note
                     </h3>
                     <p className="mt-2 leading-7 text-[#4A342A]/70">
-                      This is a static contact page for now. When the final business channels are ready, the buttons can be connected to Messenger, Google Maps, or a real order form.
+                      Final Messenger, Maps, and order-form integrations can plug into this section without changing the page layout.
                     </p>
                   </div>
                 </div>
