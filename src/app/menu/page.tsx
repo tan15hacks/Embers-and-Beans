@@ -1,65 +1,108 @@
+import Link from "next/link";
+import { ArrowRight, Coffee, Sparkles } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/layout/Container";
-import { featuredDrinks, pastries } from "@/data/menu";
-
-const menuItems = [
-  ...featuredDrinks.map((item) => ({
-    name: item.name,
-    description: item.description,
-    price: item.price,
-    category: "Coffee",
-  })),
-  ...pastries.map((name) => ({
-    name,
-    description: "Freshly baked in-house every morning.",
-    price: "$4.50",
-    category: "Bakery",
-  })),
-];
+import { menuSections } from "@/data/menu";
 
 export default function MenuPage() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-[#F8F4EF] text-[#2B1E18]">
       <Navbar />
 
-      <section className="bg-primary pt-32 text-primary-foreground">
-        <Container className="py-24">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">
-            Made with care. Served with heart.
-          </p>
-          <h1 className="mt-5 font-display text-7xl font-semibold md:text-8xl">
-            Our Menu
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-primary-foreground/75">
-            Thoughtfully crafted drinks and fresh baked goods made with quality
-            ingredients and a passion for exceptional coffee.
-          </p>
+      <section className="relative overflow-hidden bg-[#2B1E18] pt-36 text-[#FFFDFB]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,#B7793C_0%,transparent_34%),linear-gradient(120deg,#1f140f_0%,#2B1E18_52%,#5b341e_100%)]" />
+        <div className="absolute inset-0 noise opacity-20" />
+
+        <Container className="relative z-10 py-24">
+          <div className="max-w-3xl">
+            <p className="mb-6 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.25em] text-[#E5C7A1]">
+              <Sparkles size={18} /> Menu
+            </p>
+
+            <h1 className="font-[var(--font-display)] text-6xl font-semibold leading-[0.95] tracking-tight md:text-8xl">
+              Slow-crafted drinks, warm bites.
+            </h1>
+
+            <p className="mt-8 max-w-2xl text-lg leading-8 text-[#F8F4EF]/75">
+              Explore our signature coffee, everyday brews, chilled favorites,
+              and pastries made for quiet mornings and long conversations.
+            </p>
+          </div>
         </Container>
       </section>
 
       <section className="py-24">
         <Container>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {menuItems.map((item) => (
-              <article
-                key={item.name}
-                className="rounded-[2rem] border border-[color:var(--border)] bg-surface p-8"
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+            <aside className="rounded-[2rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-8 shadow-[0_20px_80px_rgba(43,30,24,0.08)] lg:sticky lg:top-28">
+              <div className="flex size-14 items-center justify-center rounded-full bg-[#B7793C]/15 text-[#B7793C]">
+                <Coffee size={26} />
+              </div>
+
+              <h2 className="mt-8 font-[var(--font-display)] text-4xl font-semibold">
+                Order ahead, pick up fresh.
+              </h2>
+
+              <p className="mt-4 leading-7 text-[#4A342A]/75">
+                Prices are listed in Philippine pesos. For advance orders, call
+                or message the shop and we will prepare your drinks close to
+                pickup time.
+              </p>
+
+              <Link
+                href="/contact"
+                className="mt-8 inline-flex h-14 items-center justify-center rounded-full bg-[#2B1E18] px-7 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
               >
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
-                  {item.category}
-                </p>
-                <h2 className="mt-4 font-display text-3xl font-semibold">
-                  {item.name}
-                </h2>
-                <p className="mt-3 leading-7 text-muted/80">
-                  {item.description}
-                </p>
-                <p className="mt-6 text-lg font-bold text-secondary">
-                  {item.price}
-                </p>
-              </article>
-            ))}
+                Contact the Shop <ArrowRight className="ml-2" size={18} />
+              </Link>
+            </aside>
+
+            <div className="space-y-10">
+              {menuSections.map((section) => (
+                <section
+                  key={section.title}
+                  className="rounded-[2rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-7 shadow-[0_20px_80px_rgba(43,30,24,0.06)] sm:p-10"
+                >
+                  <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#B7793C]">
+                    {section.eyebrow}
+                  </p>
+
+                  <div className="mt-3">
+                    <h2 className="font-[var(--font-display)] text-4xl font-semibold md:text-5xl">
+                      {section.title}
+                    </h2>
+
+                    <p className="mt-3 max-w-xl leading-7 text-[#4A342A]/70">
+                      {section.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-8 divide-y divide-[#2B1E18]/10">
+                    {section.items.map((item) => (
+                      <article
+                        key={item.name}
+                        className="grid gap-3 py-6 sm:grid-cols-[1fr_auto] sm:items-start"
+                      >
+                        <div>
+                          <h3 className="font-[var(--font-display)] text-3xl font-semibold">
+                            {item.name}
+                          </h3>
+
+                          <p className="mt-2 leading-7 text-[#4A342A]/70">
+                            {item.description}
+                          </p>
+                        </div>
+
+                        <span className="w-fit rounded-full bg-[#2B1E18] px-4 py-2 text-sm font-semibold text-[#FFFDFB]">
+                          {item.price}
+                        </span>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
           </div>
         </Container>
       </section>
