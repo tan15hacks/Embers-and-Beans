@@ -27,6 +27,12 @@ export default function MenuPage() {
             <p className="mt-8 max-w-2xl text-lg leading-8 text-[#F8F4EF]/75">
               Explore our signature coffee, everyday brews, chilled favorites,
               and pastries made for quiet mornings and long conversations.
+            <h1 className="font-[var(--font-display)] text-6xl font-semibold leading-[0.95] tracking-tight md:text-8xl">
+              Slow-crafted drinks, warm bites.
+            </h1>
+            <p className="mt-8 max-w-2xl text-lg leading-8 text-[#F8F4EF]/75">
+              Explore our signature coffee, everyday brews, chilled favorites, and pastries made for quiet mornings and long conversations.
+
             </p>
           </div>
         </Container>
@@ -38,7 +44,7 @@ export default function MenuPage() {
             <aside className="rounded-[2rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-8 shadow-[0_20px_80px_rgba(43,30,24,0.08)] lg:sticky lg:top-28">
               <div className="flex size-14 items-center justify-center rounded-full bg-[#B7793C]/15 text-[#B7793C]">
                 <Coffee size={26} />
-              </div>
+              </div
 
               <h2 className="mt-8 font-[var(--font-display)] text-4xl font-semibold">
                 Order ahead, pick up fresh.
@@ -50,6 +56,12 @@ export default function MenuPage() {
                 pickup time.
               </p>
 
+              <h2 className="mt-8 font-[var(--font-display)] text-4xl font-semibold">
+                Order ahead, pick up fresh.
+              </h2>
+              <p className="mt-4 leading-7 text-[#4A342A]/75">
+                Prices are listed in Philippine pesos. For advance orders, call or message the shop and we will prepare your drinks close to pickup time.
+              </p>
               <Link
                 href="/contact"
                 className="mt-8 inline-flex h-14 items-center justify-center rounded-full bg-[#2B1E18] px-7 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
@@ -67,7 +79,6 @@ export default function MenuPage() {
                   <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#B7793C]">
                     {section.eyebrow}
                   </p>
-
                   <div className="mt-3">
                     <h2 className="font-[var(--font-display)] text-4xl font-semibold md:text-5xl">
                       {section.title}
@@ -76,6 +87,15 @@ export default function MenuPage() {
                     <p className="mt-3 max-w-xl leading-7 text-[#4A342A]/70">
                       {section.description}
                     </p>
+                  <div className="mt-3 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                    <div>
+                      <h2 className="font-[var(--font-display)] text-4xl font-semibold md:text-5xl">
+                        {section.title}
+                      </h2>
+                      <p className="mt-3 max-w-xl leading-7 text-[#4A342A]/70">
+                        {section.description}
+                      </p>
+                    </div>
                   </div>
 
                   <div className="mt-8 divide-y divide-[#2B1E18]/10">
@@ -93,7 +113,6 @@ export default function MenuPage() {
                             {item.description}
                           </p>
                         </div>
-
                         <span className="w-fit rounded-full bg-[#2B1E18] px-4 py-2 text-sm font-semibold text-[#FFFDFB]">
                           {item.price}
                         </span>
@@ -110,4 +129,4 @@ export default function MenuPage() {
       <Footer />
     </main>
   );
-}
+
