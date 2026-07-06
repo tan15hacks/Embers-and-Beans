@@ -1,13 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { type FormEvent, useState } from "react";
 import { Send } from "lucide-react";
-import { useForm } from "react-hook-form";
 import {
-  contactFormSchema,
   contactTopicLabels,
   contactTopics,
+  validateContactForm,
   type ContactFormValues,
 } from "@/lib/contact";
 
@@ -17,62 +15,86 @@ const inputClass =
 const labelClass = "mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-[#4A342A]/70";
 const errorClass = "mt-2 text-sm font-medium text-[#9B3A2F]";
 
+const initialValues: ContactFormValues = {
+  name: "",
+  email: "",
+  phone: "",
+  topic: "pickup",
+  visitDate: "",
+  message: "",
+  website: "",
+};
+
 export function ContactForm() {
+  const [values, setValues] = useState<ContactFormValues>(initialValues);
+  const [errors, setErrors] = useState<Partial<Record<keyof ContactFormValues, string>>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState("");
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<ContactFormValues>({
-    resolver: zodResolver(contactFormSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      topic: "pickup",
-      visitDate: "",
-      message: "",
-      website: "",
-    },
-  });
+  function updateField<K extends keyof ContactFormValues>(
+    key: K,
+    value: ContactFormValues[K],
+  ) {
+    setValues((current) => ({ ...current, [key]: value }));
+    setErrors((current) => ({ ...current, [key]: undefined }));
+  }
 
-  async function onSubmit(values: ContactFormValues) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setStatus("idle");
     setStatusMessage("");
 
-    const response = await fetch("/api/contact", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
+    const validation = validateContactForm(values);
 
-    const payload = (await response.json()) as { message?: string };
-
-    if (!response.ok) {
+    if (!validation.success) {
+      setErrors(validation.errors);
       setStatus("error");
-      setStatusMessage(payload.message ?? "Something went wrong. Please try again.");
+      setStatusMessage("Please check the highlighted fields and try again.");
       return;
     }
 
-    setStatus("success");
-    setStatusMessage(payload.message ?? "Thanks — your message was sent.");
-    reset();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(validation.data),
+      });
+
+      const payload = (await response.json()) as { message?: string };
+
+      if (!response.ok) {
+        setStatus("error");
+        setStatusMessage(payload.message ?? "Something went wrong. Please try again.");
+        return;
+      }
+
+      setStatus("success");
+      setStatusMessage(payload.message ?? "Thanks — your message was sent.");
+      setValues(initialValues);
+      setErrors({});
+    } catch {
+      setStatus("error");
+      setStatusMessage("Something went wrong. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5" noValidate>
+    <form onSubmit={onSubmit} className="mt-8 space-y-5" noValidate>
       <input
         type="text"
         tabIndex={-1}
         autoComplete="off"
         className="hidden"
         aria-hidden="true"
-        {...register("website")}
+        value={values.website}
+        onChange={(event) => updateField("website", event.target.value)}
       />
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -86,9 +108,16 @@ export function ContactForm() {
             autoComplete="name"
             placeholder="Your name"
             className={inputClass}
-            {...register("name")}
+            value={values.name}
+            onChange={(event) => updateField("name", event.target.value)}
+            aria-invalid={Boolean(errors.name)}
+            aria-describedby={errors.name ? "name-error" : undefined}
           />
-          {errors.name && <p className={errorClass}>{errors.name.message}</p>}
+          {errors.name && (
+            <p id="name-error" className={errorClass}>
+              {errors.name}
+            </p>
+          )}
         </div>
 
         <div>
@@ -101,9 +130,16 @@ export function ContactForm() {
             autoComplete="email"
             placeholder="you@email.com"
             className={inputClass}
-            {...register("email")}
+            value={values.email}
+            onChange={(event) => updateField("email", event.target.value)}
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? "email-error" : undefined}
           />
-          {errors.email && <p className={errorClass}>{errors.email.message}</p>}
+          {errors.email && (
+            <p id="email-error" className={errorClass}>
+              {errors.email}
+            </p>
+          )}
         </div>
       </div>
 
@@ -118,23 +154,36 @@ export function ContactForm() {
             autoComplete="tel"
             placeholder="+63 912 345 6789"
             className={inputClass}
-            {...register("phone")}
+            value={values.phone}
+            onChange={(event) => updateField("phone", event.target.value)}
+            aria-invalid={Boolean(errors.phone)}
+            aria-describedby={errors.phone ? "phone-error" : undefined}
           />
-          {errors.phone && <p className={errorClass}>{errors.phone.message}</p>}
+          {errors.phone && (
+            <p id="phone-error" className={errorClass}>
+              {errors.phone}
+            </p>
+          )}
         </div>
 
         <div>
           <label htmlFor="topic" className={labelClass}>
             Topic
           </label>
-          <select id="topic" className={inputClass} {...register("topic")}>
+          <select
+            id="topic"
+            className={inputClass}
+            value={values.topic}
+            onChange={(event) =>
+              updateField("topic", event.target.value as ContactFormValues["topic"])
+            }
+          >
             {contactTopics.map((topic) => (
               <option key={topic} value={topic}>
                 {contactTopicLabels[topic]}
               </option>
             ))}
           </select>
-          {errors.topic && <p className={errorClass}>{errors.topic.message}</p>}
         </div>
       </div>
 
@@ -147,9 +196,16 @@ export function ContactForm() {
           type="text"
           placeholder="Tomorrow around 3 PM"
           className={inputClass}
-          {...register("visitDate")}
+          value={values.visitDate}
+          onChange={(event) => updateField("visitDate", event.target.value)}
+          aria-invalid={Boolean(errors.visitDate)}
+          aria-describedby={errors.visitDate ? "visit-date-error" : undefined}
         />
-        {errors.visitDate && <p className={errorClass}>{errors.visitDate.message}</p>}
+        {errors.visitDate && (
+          <p id="visit-date-error" className={errorClass}>
+            {errors.visitDate}
+          </p>
+        )}
       </div>
 
       <div>
@@ -161,13 +217,21 @@ export function ContactForm() {
           rows={6}
           placeholder="Tell us what you need prepared, reserved, or answered."
           className="w-full resize-none rounded-2xl border border-[#2B1E18]/10 bg-[#F8F4EF] px-4 py-4 text-sm leading-7 text-[#2B1E18] transition placeholder:text-[#4A342A]/40 focus:border-[#B7793C] focus:bg-[#FFFDFB] focus:outline-none"
-          {...register("message")}
+          value={values.message}
+          onChange={(event) => updateField("message", event.target.value)}
+          aria-invalid={Boolean(errors.message)}
+          aria-describedby={errors.message ? "message-error" : undefined}
         />
-        {errors.message && <p className={errorClass}>{errors.message.message}</p>}
+        {errors.message && (
+          <p id="message-error" className={errorClass}>
+            {errors.message}
+          </p>
+        )}
       </div>
 
       {statusMessage && (
         <p
+          aria-live="polite"
           className={
             status === "success"
               ? "rounded-2xl bg-[#6E7A5C]/10 px-4 py-3 text-sm font-semibold text-[#4F5F3F]"
