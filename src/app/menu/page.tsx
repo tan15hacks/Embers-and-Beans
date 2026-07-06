@@ -1,9 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Coffee, Sparkles } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/layout/Container";
 import { menuSections } from "@/data/menu";
+import { siteConfig } from "@/data/site";
+
+export const metadata: Metadata = {
+  title: "Menu",
+  description: `Explore signature coffee, classic brews, chilled favorites, and pastries from ${siteConfig.name}.`,
+  alternates: {
+    canonical: "/menu",
+  },
+};
 
 export default function MenuPage() {
   return (
