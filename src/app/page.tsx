@@ -2,7 +2,7 @@
 
 
 
-
+import { Testimonials } from "@/components/home/Testimonials";
 import { CafeExperience } from "@/components/home/CafeExperience";
 import { FreshlyBaked } from "@/components/home/FreshlyBaked";
 import { SeasonalCollection } from "@/components/home/SeasonalCollection";
@@ -22,6 +22,7 @@ export default function Home() {
       <SeasonalCollection />
       <FreshlyBaked />
       <CafeExperience />
+      <Testimonials />
       <Footer />
     </main>
   );
