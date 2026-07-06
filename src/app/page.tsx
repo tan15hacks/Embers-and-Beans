@@ -4,7 +4,7 @@
 
 
 
-
+import { TeamSection } from "@/components/about/TeamSection";
 import { VisitNewsletter } from "@/components/home/VisitNewsletter";
 import { Testimonials } from "@/components/home/Testimonials";
 import { CafeExperience } from "@/components/home/CafeExperience";
@@ -28,6 +28,7 @@ export default function Home() {
       <CafeExperience />
       <Testimonials />
       <VisitNewsletter />
+      <TeamSection />
       <Footer />
     </main>
   );
