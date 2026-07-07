@@ -28,7 +28,7 @@ export function Navbar() {
         </nav>
 
         <Link
-          href="/contact"
+          href="/order"
           className="hidden rounded-full bg-[#2B1E18] px-6 py-3 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A] md:inline-flex"
         >
           Order Ahead
@@ -61,7 +61,7 @@ export function Navbar() {
             ))}
 
             <Link
-              href="/contact"
+              href="/order"
               onClick={() => setIsOpen(false)}
               className="mt-2 inline-flex items-center justify-center rounded-full bg-[#2B1E18] px-6 py-3 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
             >
