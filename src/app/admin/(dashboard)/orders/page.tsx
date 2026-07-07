@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { Mail, MessageSquareText, Phone, ShoppingBag } from "lucide-react";
+import { CopyOrderMessageButton } from "@/components/admin/CopyOrderMessageButton";
+import { OrdersAutoRefresh } from "@/components/admin/OrdersAutoRefresh";
 import { getPrisma } from "@/lib/db";
 import { formatPesoAmount } from "@/lib/money";
 import { sendOrderStatusNotifications } from "@/lib/order-notifications";
 
-const orderStatuses = ["new", "confirmed", "preparing", "ready", "completed", "cancelled"];
+const orderStatuses = ["new", "confirmed", "ready", "completed", "cancelled"];
 
 const statusLabels: Record<string, string> = {
   new: "New",
   confirmed: "Confirmed",
-  preparing: "Preparing",
   ready: "Ready",
   completed: "Completed",
   cancelled: "Cancelled",
@@ -19,7 +20,6 @@ const statusLabels: Record<string, string> = {
 const statusCustomerMessages: Record<string, string> = {
   new: "your pickup order request has been received",
   confirmed: "your pickup order has been confirmed",
-  preparing: "your pickup order is now being prepared",
   ready: "your pickup order is ready for pickup",
   completed: "your pickup order has been completed. Thank you",
   cancelled: "your pickup order has been cancelled. Please contact us for details",
@@ -33,7 +33,6 @@ const paymentLabels: Record<string, string> = {
 const statusClasses: Record<string, string> = {
   new: "bg-[#B7793C]/15 text-[#B7793C]",
   confirmed: "bg-[#6E7A5C]/15 text-[#4F5F3F]",
-  preparing: "bg-[#E5C7A1]/40 text-[#4A342A]",
   ready: "bg-[#2B1E18] text-[#FFFDFB]",
   completed: "bg-[#6E7A5C]/20 text-[#4F5F3F]",
   cancelled: "bg-[#9B3A2F]/10 text-[#9B3A2F]",
@@ -109,7 +108,8 @@ function getOrderItemsText(order: OrderRecord) {
 }
 
 function getManualSmsMessage(order: OrderRecord) {
-  const statusText = statusCustomerMessages[order.status] ?? `your pickup order status is now ${order.status}`;
+  const statusText =
+    statusCustomerMessages[order.status] ?? `your pickup order status is now ${order.status}`;
   const paymentLabel = paymentLabels[order.paymentMethod] ?? order.paymentMethod;
   const itemText = getOrderItemsText(order);
 
@@ -204,12 +204,15 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
           </p>
         </div>
 
-        <Link
-          href="/order"
-          className="inline-flex h-12 items-center justify-center rounded-full bg-[#2B1E18] px-6 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
-        >
-          Test order page
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <OrdersAutoRefresh intervalMs={8000} />
+          <Link
+            href="/order"
+            className="inline-flex h-12 items-center justify-center rounded-full bg-[#2B1E18] px-6 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
+          >
+            Test order page
+          </Link>
+        </div>
       </div>
 
       {!databaseReady && (
@@ -248,122 +251,127 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
             {databaseReady ? "No orders yet. Submit a test pickup order from the public order page." : "Orders will appear here after the ordering database is synced."}
           </div>
         ) : (
-          orders.map((order) => (
-            <article key={order.id} className="rounded-[2rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-6 shadow-[0_18px_70px_rgba(43,30,24,0.06)]">
-              <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
-                <div className="flex items-start gap-4">
-                  <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-[#B7793C]/15 text-[#B7793C]">
-                    <ShoppingBag size={26} />
-                  </div>
-                  <div>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h2 className="font-[var(--font-display)] text-3xl font-semibold">
-                        {order.customerName}
-                      </h2>
-                      <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] ${statusClasses[order.status] ?? statusClasses.new}`}>
-                        {statusLabels[order.status] ?? order.status}
-                      </span>
+          orders.map((order) => {
+            const manualSmsMessage = getManualSmsMessage(order);
+
+            return (
+              <article key={order.id} className="rounded-[2rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-6 shadow-[0_18px_70px_rgba(43,30,24,0.06)]">
+                <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
+                  <div className="flex items-start gap-4">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-[#B7793C]/15 text-[#B7793C]">
+                      <ShoppingBag size={26} />
                     </div>
-                    <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-[#4A342A]/75">
-                      <Phone size={15} /> {order.customerPhone || "No phone"}
-                    </p>
-                    {order.customerEmail && (
-                      <p className="mt-2 text-sm text-[#4A342A]/55">
-                        {order.customerEmail}
+                    <div>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <h2 className="font-[var(--font-display)] text-3xl font-semibold">
+                          {order.customerName}
+                        </h2>
+                        <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] ${statusClasses[order.status] ?? statusClasses.new}`}>
+                          {statusLabels[order.status] ?? order.status}
+                        </span>
+                      </div>
+                      <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-[#4A342A]/75">
+                        <Phone size={15} /> {order.customerPhone || "No phone"}
                       </p>
-                    )}
-                    <p className="mt-2 text-sm font-semibold text-[#4A342A]/75">
-                      Pickup: {formatPickupTime(order.pickupTime)}
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-[#B7793C]">
-                      Payment: {paymentLabels[order.paymentMethod] ?? order.paymentMethod}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-left lg:text-right">
-                  <p className="font-[var(--font-display)] text-4xl font-semibold">
-                    {formatPesoAmount(order.totalAmount)}
-                  </p>
-                  <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-[#4A342A]/50">
-                    {order.createdAt.toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" })}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 rounded-2xl bg-[#F8F4EF] p-4">
-                <div className="space-y-3">
-                  {order.items.map((item) => (
-                    <div key={item.id} className="flex items-start justify-between gap-4 text-sm">
-                      <span className="text-[#4A342A]/80">
-                        {item.quantity}× {item.name} <span className="text-[#4A342A]/45">· {item.category}</span>
-                      </span>
-                      <span className="font-semibold text-[#2B1E18]">
-                        {formatPesoAmount(item.lineTotal)}
-                      </span>
+                      {order.customerEmail && (
+                        <p className="mt-2 text-sm text-[#4A342A]/55">
+                          {order.customerEmail}
+                        </p>
+                      )}
+                      <p className="mt-2 text-sm font-semibold text-[#4A342A]/75">
+                        Pickup: {formatPickupTime(order.pickupTime)}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-[#B7793C]">
+                        Payment: {paymentLabels[order.paymentMethod] ?? order.paymentMethod}
+                      </p>
                     </div>
-                  ))}
-                </div>
-                {order.notes && (
-                  <p className="mt-4 border-t border-[#2B1E18]/10 pt-4 text-sm leading-6 text-[#4A342A]/75">
-                    Notes: {order.notes}
-                  </p>
-                )}
-              </div>
-
-              <div className="mt-6 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-                <form action={updateOrderStatus} className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-                  <input type="hidden" name="id" value={order.id} />
-                  <div>
-                    <label htmlFor={`${order.id}-status`} className="mb-2 block text-[10px] font-bold uppercase tracking-[0.18em] text-[#4A342A]/60">
-                      Update status
-                    </label>
-                    <select
-                      key={`${order.id}-${order.status}`}
-                      id={`${order.id}-status`}
-                      name="status"
-                      defaultValue={order.status}
-                      className="h-11 w-full rounded-xl border border-[#2B1E18]/10 bg-[#F8F4EF] px-3 text-sm text-[#2B1E18] focus:border-[#B7793C] focus:bg-[#FFFDFB] focus:outline-none"
-                    >
-                      {orderStatuses.map((status) => (
-                        <option key={status} value={status}>{statusLabels[status]}</option>
-                      ))}
-                    </select>
                   </div>
-                  <button type="submit" className="h-11 rounded-full bg-[#2B1E18] px-6 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]">
-                    Save
-                  </button>
-                </form>
 
-                <div className="flex flex-wrap gap-3">
-                  {order.customerEmail && (
-                    <Link
-                      href={`mailto:${order.customerEmail}`}
-                      className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
-                    >
-                      <Mail className="mr-2" size={16} /> Email
-                    </Link>
-                  )}
-                  {order.customerPhone && (
-                    <>
-                      <Link
-                        href={getSmsHref(order)}
-                        className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
-                      >
-                        <MessageSquareText className="mr-2" size={16} /> SMS
-                      </Link>
-                      <Link
-                        href={`tel:${order.customerPhone}`}
-                        className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
-                      >
-                        <Phone className="mr-2" size={16} /> Call
-                      </Link>
-                    </>
+                  <div className="text-left lg:text-right">
+                    <p className="font-[var(--font-display)] text-4xl font-semibold">
+                      {formatPesoAmount(order.totalAmount)}
+                    </p>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-[#4A342A]/50">
+                      {order.createdAt.toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-2xl bg-[#F8F4EF] p-4">
+                  <div className="space-y-3">
+                    {order.items.map((item) => (
+                      <div key={item.id} className="flex items-start justify-between gap-4 text-sm">
+                        <span className="text-[#4A342A]/80">
+                          {item.quantity}× {item.name} <span className="text-[#4A342A]/45">· {item.category}</span>
+                        </span>
+                        <span className="font-semibold text-[#2B1E18]">
+                          {formatPesoAmount(item.lineTotal)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {order.notes && (
+                    <p className="mt-4 border-t border-[#2B1E18]/10 pt-4 text-sm leading-6 text-[#4A342A]/75">
+                      Notes: {order.notes}
+                    </p>
                   )}
                 </div>
-              </div>
-            </article>
-          ))
+
+                <div className="mt-6 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
+                  <form action={updateOrderStatus} className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                    <input type="hidden" name="id" value={order.id} />
+                    <div>
+                      <label htmlFor={`${order.id}-status`} className="mb-2 block text-[10px] font-bold uppercase tracking-[0.18em] text-[#4A342A]/60">
+                        Update status
+                      </label>
+                      <select
+                        key={`${order.id}-${order.status}`}
+                        id={`${order.id}-status`}
+                        name="status"
+                        defaultValue={order.status}
+                        className="h-11 w-full rounded-xl border border-[#2B1E18]/10 bg-[#F8F4EF] px-3 text-sm text-[#2B1E18] focus:border-[#B7793C] focus:bg-[#FFFDFB] focus:outline-none"
+                      >
+                        {orderStatuses.map((status) => (
+                          <option key={status} value={status}>{statusLabels[status]}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <button type="submit" className="h-11 rounded-full bg-[#2B1E18] px-6 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]">
+                      Save
+                    </button>
+                  </form>
+
+                  <div className="flex flex-wrap gap-3">
+                    {order.customerEmail && (
+                      <Link
+                        href={`mailto:${order.customerEmail}`}
+                        className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
+                      >
+                        <Mail className="mr-2" size={16} /> Email
+                      </Link>
+                    )}
+                    {order.customerPhone && (
+                      <>
+                        <Link
+                          href={getSmsHref(order)}
+                          className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
+                        >
+                          <MessageSquareText className="mr-2" size={16} /> SMS
+                        </Link>
+                        <CopyOrderMessageButton message={manualSmsMessage} />
+                        <Link
+                          href={`tel:${order.customerPhone}`}
+                          className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
+                        >
+                          <Phone className="mr-2" size={16} /> Call
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })
         )}
       </section>
     </div>
