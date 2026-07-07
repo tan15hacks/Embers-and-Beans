@@ -45,6 +45,19 @@ type PrismaWithOrder = ReturnType<typeof getPrisma> & {
 
 const paymentMethods = ["gcash", "bank"];
 
+function getTodayDateInManila() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Manila",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function getPickupDateOnly(pickupTime: string) {
+  return pickupTime.slice(0, 10);
+}
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as OrderPayload;
@@ -72,6 +85,13 @@ export async function POST(request: Request) {
 
     if (!pickupTime || Number.isNaN(Date.parse(pickupTime))) {
       return NextResponse.json({ message: "Please select your pickup date and time." }, { status: 400 });
+    }
+
+    if (getPickupDateOnly(pickupTime) < getTodayDateInManila()) {
+      return NextResponse.json(
+        { message: "Pickup date cannot be in the past. Please choose today or a future date." },
+        { status: 400 },
+      );
     }
 
     const requestedItems = submittedItems
