@@ -5,6 +5,7 @@ import {
   type ContactFormValues,
 } from "@/lib/contact";
 import { siteConfig } from "@/data/site";
+import { getPrisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
@@ -26,6 +27,8 @@ export async function POST(request: Request) {
     if (data.website) {
       return NextResponse.json({ message: "Message received." });
     }
+
+    await saveContactMessage(data);
 
     const apiKey = process.env.RESEND_API_KEY;
     const toEmail = process.env.CONTACT_TO_EMAIL ?? siteConfig.email;
@@ -64,6 +67,25 @@ export async function POST(request: Request) {
       { message: "Something went wrong. Please try again later." },
       { status: 500 },
     );
+  }
+}
+
+async function saveContactMessage(data: ContactFormValues) {
+  try {
+    const prisma = getPrisma();
+
+    await prisma.contactMessage.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        topic: data.topic,
+        visitDate: data.visitDate || null,
+        message: data.message,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to save contact message", error);
   }
 }
 
