@@ -1,7 +1,7 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
-import { Send } from "lucide-react";
+import { type FormEvent, useMemo, useState } from "react";
+import { CheckCircle2, Send } from "lucide-react";
 import {
   contactTopicLabels,
   contactTopics,
@@ -10,7 +10,7 @@ import {
 } from "@/lib/contact";
 
 const inputClass =
-  "h-13 w-full rounded-2xl border border-[#2B1E18]/10 bg-[#F8F4EF] px-4 text-sm text-[#2B1E18] transition placeholder:text-[#4A342A]/40 focus:border-[#B7793C] focus:bg-[#FFFDFB] focus:outline-none";
+  "h-14 w-full rounded-2xl border border-[#2B1E18]/10 bg-[#F8F4EF] px-4 text-sm text-[#2B1E18] transition placeholder:text-[#4A342A]/40 focus:border-[#B7793C] focus:bg-[#FFFDFB] focus:outline-none";
 
 const labelClass = "mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-[#4A342A]/70";
 const errorClass = "mt-2 text-sm font-medium text-[#9B3A2F]";
@@ -25,12 +25,24 @@ const initialValues: ContactFormValues = {
   website: "",
 };
 
+const topicHints: Record<ContactFormValues["topic"], string> = {
+  pickup: "Tell us your drinks, pastries, quantity, and preferred pickup time.",
+  events: "Share the date, guest count, and what kind of coffee or pastry box you need.",
+  visit: "Ask about seats, hours, accessibility, directions, or today’s counter selection.",
+  general: "Send any question, partnership note, or feedback for the shop team.",
+};
+
 export function ContactForm() {
   const [values, setValues] = useState<ContactFormValues>(initialValues);
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormValues, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState("");
+
+  const remainingCharacters = useMemo(
+    () => Math.max(0, 1000 - values.message.length),
+    [values.message.length],
+  );
 
   function updateField<K extends keyof ContactFormValues>(
     key: K,
@@ -96,6 +108,35 @@ export function ContactForm() {
         value={values.website}
         onChange={(event) => updateField("website", event.target.value)}
       />
+
+      <div className="rounded-[2rem] border border-[#2B1E18]/10 bg-[#F8F4EF] p-5">
+        <label htmlFor="topic" className={labelClass}>
+          What can we help with?
+        </label>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {contactTopics.map((topic) => {
+            const isActive = values.topic === topic;
+
+            return (
+              <button
+                key={topic}
+                type="button"
+                onClick={() => updateField("topic", topic)}
+                className={
+                  isActive
+                    ? "rounded-2xl border border-[#B7793C] bg-[#2B1E18] px-4 py-3 text-left text-sm font-semibold text-[#FFFDFB] shadow-[0_12px_36px_rgba(43,30,24,0.16)]"
+                    : "rounded-2xl border border-[#2B1E18]/10 bg-[#FFFDFB] px-4 py-3 text-left text-sm font-semibold text-[#2B1E18] transition hover:border-[#B7793C]/60 hover:bg-[#E5C7A1]/25"
+                }
+              >
+                {contactTopicLabels[topic]}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-4 rounded-2xl bg-[#FFFDFB] px-4 py-3 text-sm leading-6 text-[#4A342A]/75">
+          {topicHints[values.topic]}
+        </p>
+      </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
@@ -167,51 +208,36 @@ export function ContactForm() {
         </div>
 
         <div>
-          <label htmlFor="topic" className={labelClass}>
-            Topic
+          <label htmlFor="visitDate" className={labelClass}>
+            Date or pickup time optional
           </label>
-          <select
-            id="topic"
+          <input
+            id="visitDate"
+            type="text"
+            placeholder="Tomorrow around 3 PM"
             className={inputClass}
-            value={values.topic}
-            onChange={(event) =>
-              updateField("topic", event.target.value as ContactFormValues["topic"])
-            }
-          >
-            {contactTopics.map((topic) => (
-              <option key={topic} value={topic}>
-                {contactTopicLabels[topic]}
-              </option>
-            ))}
-          </select>
+            value={values.visitDate}
+            onChange={(event) => updateField("visitDate", event.target.value)}
+            aria-invalid={Boolean(errors.visitDate)}
+            aria-describedby={errors.visitDate ? "visit-date-error" : undefined}
+          />
+          {errors.visitDate && (
+            <p id="visit-date-error" className={errorClass}>
+              {errors.visitDate}
+            </p>
+          )}
         </div>
       </div>
 
       <div>
-        <label htmlFor="visitDate" className={labelClass}>
-          Preferred date or pickup time optional
-        </label>
-        <input
-          id="visitDate"
-          type="text"
-          placeholder="Tomorrow around 3 PM"
-          className={inputClass}
-          value={values.visitDate}
-          onChange={(event) => updateField("visitDate", event.target.value)}
-          aria-invalid={Boolean(errors.visitDate)}
-          aria-describedby={errors.visitDate ? "visit-date-error" : undefined}
-        />
-        {errors.visitDate && (
-          <p id="visit-date-error" className={errorClass}>
-            {errors.visitDate}
-          </p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="message" className={labelClass}>
-          Message
-        </label>
+        <div className="mb-2 flex items-center justify-between gap-4">
+          <label htmlFor="message" className="block text-xs font-bold uppercase tracking-[0.18em] text-[#4A342A]/70">
+            Message
+          </label>
+          <span className="text-xs font-semibold text-[#4A342A]/50">
+            {remainingCharacters} left
+          </span>
+        </div>
         <textarea
           id="message"
           rows={6}
@@ -230,16 +256,18 @@ export function ContactForm() {
       </div>
 
       {statusMessage && (
-        <p
+        <div
+          role="status"
           aria-live="polite"
           className={
             status === "success"
-              ? "rounded-2xl bg-[#6E7A5C]/10 px-4 py-3 text-sm font-semibold text-[#4F5F3F]"
-              : "rounded-2xl bg-[#9B3A2F]/10 px-4 py-3 text-sm font-semibold text-[#9B3A2F]"
+              ? "flex items-start gap-3 rounded-2xl border border-[#6E7A5C]/20 bg-[#6E7A5C]/10 px-4 py-4 text-sm font-semibold text-[#4F5F3F]"
+              : "rounded-2xl border border-[#9B3A2F]/20 bg-[#9B3A2F]/10 px-4 py-4 text-sm font-semibold text-[#9B3A2F]"
           }
         >
-          {statusMessage}
-        </p>
+          {status === "success" && <CheckCircle2 className="mt-0.5 shrink-0" size={18} />}
+          <span>{statusMessage}</span>
+        </div>
       )}
 
       <button
