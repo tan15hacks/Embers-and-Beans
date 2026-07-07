@@ -14,7 +14,6 @@ export type OrderNotificationDetails = {
 const statusMessages: Record<string, string> = {
   new: "Your order request has been received.",
   confirmed: "Your order has been confirmed.",
-  preparing: "Your order is now being prepared.",
   ready: "Your order is ready for pickup.",
   completed: "Your order has been completed. Thank you!",
   cancelled: "Your order has been cancelled. Please contact the shop for details.",
@@ -23,7 +22,6 @@ const statusMessages: Record<string, string> = {
 const statusLabels: Record<string, string> = {
   new: "Received",
   confirmed: "Confirmed",
-  preparing: "Preparing",
   ready: "Ready for Pickup",
   completed: "Completed",
   cancelled: "Cancelled",
