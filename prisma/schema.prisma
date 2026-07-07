@@ -26,9 +26,10 @@ model MenuItem {
 model Order {
   id            String      @id @default(cuid())
   customerName  String
-  customerEmail String
+  customerEmail String?
   customerPhone String?
   pickupTime    String
+  paymentMethod String      @default("gcash")
   notes         String?
   status        String      @default("new")
   totalAmount   Int
