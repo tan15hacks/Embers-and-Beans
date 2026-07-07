@@ -7,8 +7,14 @@ import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/layout/Container";
 import { ProductCard } from "@/components/shared/ProductCard";
 import { Reveal } from "@/components/shared/Reveal";
-import { featuredDrinks, menuSections } from "@/data/menu";
+import {
+  featuredDrinks as staticFeaturedDrinks,
+  menuSections,
+  type MenuItem,
+  type MenuSection,
+} from "@/data/menu";
 import { siteConfig } from "@/data/site";
+import { getPrisma } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Menu",
@@ -18,11 +24,114 @@ export const metadata: Metadata = {
   },
 };
 
-const menuCategories = menuSections.filter(
+export const dynamic = "force-dynamic";
+
+const staticMenuCategories = menuSections.filter(
   (section) => section.title !== "Signature Sips",
 );
 
-export default function MenuPage() {
+const categoryDetails: Record<string, Pick<MenuSection, "eyebrow" | "description">> = {
+  "Signature Sips": {
+    eyebrow: "House Favorites",
+    description: "Coffee-forward drinks with the warm, slow-crafted Ember & Bean character.",
+  },
+  Seasonal: {
+    eyebrow: "Limited Pour",
+    description: "Seasonal drinks and short-run specials from the café counter.",
+  },
+  Pastries: {
+    eyebrow: "Fresh From The Counter",
+    description: "Simple, comforting bakes that pair beautifully with every cup.",
+  },
+  "Coffee Bar": {
+    eyebrow: "Daily Rituals",
+    description: "Comforting espresso and brewed coffee staples for everyday visits.",
+  },
+  "Non-Coffee": {
+    eyebrow: "Beyond Espresso",
+    description: "Smooth, cozy drinks for guests taking a break from coffee.",
+  },
+};
+
+type PublicMenuData = {
+  featuredDrinks: MenuItem[];
+  menuCategories: MenuSection[];
+  source: "database" | "static";
+};
+
+async function getPublicMenuData(): Promise<PublicMenuData> {
+  try {
+    const prisma = getPrisma();
+    const items = await prisma.menuItem.findMany({
+      where: {
+        active: true,
+      },
+      orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { createdAt: "desc" }],
+    });
+
+    if (items.length === 0) {
+      return {
+        featuredDrinks: staticFeaturedDrinks,
+        menuCategories: staticMenuCategories,
+        source: "static",
+      };
+    }
+
+    const mappedItems = items.map((item) => ({
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      image: item.image ?? undefined,
+      imageAlt: item.imageAlt ?? undefined,
+      category: item.category,
+      featured: item.featured,
+    }));
+
+    const featuredDrinks = mappedItems
+      .filter((item) => item.featured)
+      .slice(0, 3)
+      .map(({ category: _category, featured: _featured, ...item }) => item);
+
+    const categories = Array.from(
+      mappedItems.reduce((grouped, item) => {
+        const current = grouped.get(item.category) ?? [];
+        current.push(item);
+        grouped.set(item.category, current);
+        return grouped;
+      }, new Map<string, typeof mappedItems>()),
+    ).map(([title, categoryItems]) => {
+      const details = categoryDetails[title] ?? {
+        eyebrow: "From The Counter",
+        description: "Freshly prepared items available from the Ember & Bean menu.",
+      };
+
+      return {
+        title,
+        eyebrow: details.eyebrow,
+        description: details.description,
+        items: categoryItems.map(({ category: _category, featured: _featured, ...item }) => item),
+      };
+    });
+
+    return {
+      featuredDrinks: featuredDrinks.length > 0 ? featuredDrinks : staticFeaturedDrinks,
+      menuCategories: categories.filter((section) => section.title !== "Signature Sips"),
+      source: "database",
+    };
+  } catch (error) {
+    console.error("Public menu database fallback", error);
+
+    return {
+      featuredDrinks: staticFeaturedDrinks,
+      menuCategories: staticMenuCategories,
+      source: "static",
+    };
+  }
+}
+
+export default async function MenuPage() {
+  const { featuredDrinks, menuCategories, source } = await getPublicMenuData();
+
   return (
     <main className="min-h-screen bg-[#F8F4EF] text-[#2B1E18]">
       <Navbar />
@@ -72,15 +181,22 @@ export default function MenuPage() {
                   <br /> photographed beautifully.
                 </h2>
               </div>
-              <p className="max-w-md text-lg leading-8 text-[#4A342A]/75">
-                Our featured drinks now carry the same warm editorial image language as the homepage.
-              </p>
+              <div className="max-w-md">
+                <p className="text-lg leading-8 text-[#4A342A]/75">
+                  Our featured drinks carry the same warm editorial image language as the homepage.
+                </p>
+                {source === "database" && (
+                  <p className="mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#B7793C]">
+                    Updated from admin
+                  </p>
+                )}
+              </div>
             </div>
           </Reveal>
 
           <div className="mt-16 grid gap-6 md:grid-cols-3">
             {featuredDrinks.map((drink, index) => (
-              <Reveal key={drink.name} delay={index * 0.06}>
+              <Reveal key={`${drink.name}-${index}`} delay={index * 0.06}>
                 <ProductCard
                   name={drink.name}
                   description={drink.description}
@@ -145,9 +261,9 @@ export default function MenuPage() {
                     </div>
 
                     <div className="divide-y divide-[#2B1E18]/10 px-7 sm:px-10">
-                      {section.items.map((item) => (
+                      {section.items.map((item, itemIndex) => (
                         <article
-                          key={item.name}
+                          key={`${section.title}-${item.name}-${itemIndex}`}
                           className="grid gap-4 py-7 sm:grid-cols-[1fr_auto] sm:items-start"
                         >
                           <div>
