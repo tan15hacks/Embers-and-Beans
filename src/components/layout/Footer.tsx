@@ -35,10 +35,16 @@ export function Footer() {
               <Link href={siteConfig.phoneHref} className="flex gap-2 hover:text-white">
                 <Phone size={18} /> {siteConfig.phone}
               </Link>
-              <Link href="mailto:hello@emberandbean.com" className="flex gap-2 hover:text-white">
+              <Link href={`mailto:${siteConfig.email}`} className="flex gap-2 hover:text-white">
                 <Mail size={18} /> {siteConfig.email}
               </Link>
-              <Link href="#" className="flex gap-2 hover:text-white">
+              <Link
+                href={siteConfig.instagramHref}
+                target="_blank"
+                rel="noreferrer"
+                className="flex gap-2 hover:text-white"
+                aria-label="Open Ember and Bean on Instagram"
+              >
                 <Camera size={18} /> {siteConfig.instagram}
               </Link>
             </div>
