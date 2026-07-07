@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { revalidatePath } from "next/cache";
-import { Coffee, Pencil, Plus, Save, Sparkles, Trash2 } from "lucide-react";
+import { Coffee, Filter, Plus, Save, Sparkles, Trash2 } from "lucide-react";
 import { menuSections } from "@/data/menu";
 import { getPrisma } from "@/lib/db";
 
@@ -25,6 +26,17 @@ const starterMenuItems = menuSections.flatMap((section) =>
   })),
 );
 
+type MenuFilters = {
+  q?: string;
+  category?: string;
+  status?: string;
+  featured?: string;
+};
+
+type AdminMenuPageProps = {
+  searchParams?: Promise<MenuFilters>;
+};
+
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
@@ -39,6 +51,34 @@ function revalidateMenuPaths() {
   revalidatePath("/admin/dashboard");
   revalidatePath("/menu");
   revalidatePath("/");
+}
+
+function matchesFilters(
+  item: Awaited<ReturnType<typeof getMenuItems>>[number],
+  filters: MenuFilters,
+) {
+  const query = filters.q?.trim().toLowerCase() ?? "";
+  const category = filters.category ?? "all";
+  const status = filters.status ?? "all";
+  const featured = filters.featured ?? "all";
+
+  const matchesQuery =
+    query.length === 0 ||
+    item.name.toLowerCase().includes(query) ||
+    item.description.toLowerCase().includes(query) ||
+    item.price.toLowerCase().includes(query);
+
+  const matchesCategory = category === "all" || item.category === category;
+  const matchesStatus =
+    status === "all" ||
+    (status === "active" && item.active) ||
+    (status === "hidden" && !item.active);
+  const matchesFeatured =
+    featured === "all" ||
+    (featured === "featured" && item.featured) ||
+    (featured === "standard" && !item.featured);
+
+  return matchesQuery && matchesCategory && matchesStatus && matchesFeatured;
 }
 
 async function importStarterMenu() {
@@ -146,8 +186,11 @@ const inputClass =
 const labelClass = "mb-2 block text-[10px] font-bold uppercase tracking-[0.18em] text-[#4A342A]/60";
 const statusBadgeClass = "rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em]";
 
-export default async function AdminMenuPage() {
-  const menuItems = await getMenuItems();
+export default async function AdminMenuPage({ searchParams }: AdminMenuPageProps) {
+  const filters = (await searchParams) ?? {};
+  const allMenuItems = await getMenuItems();
+  const menuItems = allMenuItems.filter((item) => matchesFilters(item, filters));
+  const hasFilters = Boolean(filters.q || filters.category || filters.status || filters.featured);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -160,11 +203,11 @@ export default async function AdminMenuPage() {
             Edit café items.
           </h1>
           <p className="mt-5 max-w-2xl leading-8 text-[#4A342A]/75">
-            A compact list for quick scanning. Open a row only when you need to edit details.
+            A compact list for quick scanning. Use filters to find items fast, then open a row to edit.
           </p>
         </div>
         <div className="rounded-full bg-[#FFFDFB] px-5 py-3 text-sm font-bold text-[#4A342A]/70 shadow-[0_14px_50px_rgba(43,30,24,0.06)]">
-          {menuItems.length} database item{menuItems.length === 1 ? "" : "s"}
+          Showing {menuItems.length} of {allMenuItems.length}
         </div>
       </div>
 
@@ -278,29 +321,85 @@ export default async function AdminMenuPage() {
         </details>
       </section>
 
-      <section className="mt-10 overflow-hidden rounded-[1.5rem] border border-[#2B1E18]/10 bg-[#FFFDFB] shadow-[0_18px_70px_rgba(43,30,24,0.06)]">
+      <section className="mt-6 rounded-[1.5rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-5 shadow-[0_18px_70px_rgba(43,30,24,0.05)]">
+        <div className="mb-5 flex items-center gap-3">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#B7793C]/15 text-[#B7793C]">
+            <Filter size={19} />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#B7793C]">Filters</p>
+            <h2 className="font-[var(--font-display)] text-2xl font-semibold">Find menu items fast</h2>
+          </div>
+        </div>
+
+        <form className="grid gap-4 lg:grid-cols-[1.2fr_0.9fr_0.75fr_0.75fr_auto_auto] lg:items-end" method="get">
+          <div>
+            <label htmlFor="q" className={labelClass}>Search</label>
+            <input id="q" name="q" className={inputClass} defaultValue={filters.q ?? ""} placeholder="Latte, croissant, ₱185..." />
+          </div>
+          <div>
+            <label htmlFor="category-filter" className={labelClass}>Category</label>
+            <select id="category-filter" name="category" className={inputClass} defaultValue={filters.category ?? "all"}>
+              <option value="all">All categories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="status-filter" className={labelClass}>Visibility</label>
+            <select id="status-filter" name="status" className={inputClass} defaultValue={filters.status ?? "all"}>
+              <option value="all">All</option>
+              <option value="active">Visible</option>
+              <option value="hidden">Hidden</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="featured-filter" className={labelClass}>Type</label>
+            <select id="featured-filter" name="featured" className={inputClass} defaultValue={filters.featured ?? "all"}>
+              <option value="all">All</option>
+              <option value="featured">Featured</option>
+              <option value="standard">Standard</option>
+            </select>
+          </div>
+          <button type="submit" className="h-11 rounded-full bg-[#2B1E18] px-6 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]">
+            Apply
+          </button>
+          {hasFilters ? (
+            <Link href="/admin/menu" className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]">
+              Reset
+            </Link>
+          ) : null}
+        </form>
+      </section>
+
+      <section className="mt-6 overflow-hidden rounded-[1.5rem] border border-[#2B1E18]/10 bg-[#FFFDFB] shadow-[0_18px_70px_rgba(43,30,24,0.06)]">
         <div className="border-b border-[#2B1E18]/10 px-5 py-4">
-          <div className="hidden grid-cols-[1.4fr_0.9fr_0.5fr_0.8fr_0.7fr] gap-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#4A342A]/50 lg:grid">
+          <div className="hidden grid-cols-[1.4fr_0.9fr_0.5fr_0.8fr_0.6fr] gap-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#4A342A]/50 lg:grid">
             <span>Item</span>
             <span>Category</span>
             <span>Price</span>
             <span>Status</span>
-            <span className="text-right">Actions</span>
+            <span className="text-right">Edit</span>
           </div>
           <h2 className="font-[var(--font-display)] text-3xl font-semibold lg:hidden">
             Menu items
           </h2>
         </div>
 
-        {menuItems.length === 0 ? (
+        {allMenuItems.length === 0 ? (
           <div className="p-6 text-[#4A342A]/75">
             No database menu items yet. Import the starter menu above or add your first item manually.
+          </div>
+        ) : menuItems.length === 0 ? (
+          <div className="p-6 text-[#4A342A]/75">
+            No items match the current filters. Reset filters or try a different search.
           </div>
         ) : (
           <div className="divide-y divide-[#2B1E18]/10">
             {menuItems.map((item) => (
-              <article key={item.id} className="px-5 py-4 transition hover:bg-[#F8F4EF]/70">
-                <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr_0.5fr_0.8fr_0.7fr] lg:items-center">
+              <details key={item.id} className="group">
+                <summary className="grid cursor-pointer list-none gap-4 px-5 py-4 transition hover:bg-[#F8F4EF]/70 lg:grid-cols-[1.4fr_0.9fr_0.5fr_0.8fr_0.6fr] lg:items-center [&::-webkit-details-marker]:hidden">
                   <div className="min-w-0">
                     <div className="flex items-center gap-3">
                       <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#B7793C]/12 text-[#B7793C]">
@@ -334,33 +433,13 @@ export default async function AdminMenuPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 lg:justify-end">
-                    <details className="group relative">
-                      <summary className="inline-flex h-10 cursor-pointer list-none items-center justify-center rounded-full bg-[#2B1E18] px-4 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A] [&::-webkit-details-marker]:hidden">
-                        <Pencil className="mr-2" size={15} /> Edit
-                      </summary>
-                    </details>
-                    <form action={deleteMenuItem}>
-                      <input type="hidden" name="id" value={item.id} />
-                      <button
-                        type="submit"
-                        className="inline-flex h-10 items-center justify-center rounded-full border border-[#9B3A2F]/20 px-4 text-sm font-semibold text-[#9B3A2F] transition hover:bg-[#9B3A2F]/10"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </form>
-                  </div>
-                </div>
+                  <span className="inline-flex h-10 items-center justify-center rounded-full bg-[#2B1E18] px-4 text-sm font-semibold text-[#FFFDFB] transition group-open:bg-[#B7793C] lg:justify-self-end">
+                    Edit
+                  </span>
+                </summary>
 
-                <details className="group mt-4 rounded-2xl border border-[#2B1E18]/10 bg-[#F8F4EF] p-4">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold uppercase tracking-[0.16em] text-[#4A342A]/65 [&::-webkit-details-marker]:hidden">
-                    Edit item details
-                    <span className="rounded-full bg-[#FFFDFB] px-3 py-1 text-[11px] text-[#B7793C] transition group-open:bg-[#B7793C] group-open:text-[#FFFDFB]">
-                      Open
-                    </span>
-                  </summary>
-
-                  <form action={updateMenuItem} className="mt-5 grid gap-4 border-t border-[#2B1E18]/10 pt-5 md:grid-cols-2">
+                <div className="border-t border-[#2B1E18]/10 bg-[#F8F4EF] px-5 py-5">
+                  <form action={updateMenuItem} className="grid gap-4 md:grid-cols-2">
                     <input type="hidden" name="id" value={item.id} />
                     <div>
                       <label htmlFor={`${item.id}-name`} className={labelClass}>Name</label>
@@ -416,8 +495,18 @@ export default async function AdminMenuPage() {
                       <Save className="mr-2" size={16} /> Save Changes
                     </button>
                   </form>
-                </details>
-              </article>
+
+                  <form action={deleteMenuItem} className="mt-4 border-t border-[#2B1E18]/10 pt-4">
+                    <input type="hidden" name="id" value={item.id} />
+                    <button
+                      type="submit"
+                      className="inline-flex h-10 items-center justify-center rounded-full border border-[#9B3A2F]/20 px-5 text-sm font-semibold text-[#9B3A2F] transition hover:bg-[#9B3A2F]/10"
+                    >
+                      <Trash2 className="mr-2" size={15} /> Delete Item
+                    </button>
+                  </form>
+                </div>
+              </details>
             ))}
           </div>
         )}
