@@ -6,16 +6,17 @@ const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
 
-const adapter = new PrismaNeon({
-  connectionString: process.env.DATABASE_URL!,
-});
+export function getPrisma() {
+  const connectionString = process.env.DATABASE_URL ?? process.env.DIRECT_URL;
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    adapter,
-  });
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not configured.");
+  }
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+  if (!globalForPrisma.prisma) {
+    const adapter = new PrismaNeon({ connectionString });
+    globalForPrisma.prisma = new PrismaClient({ adapter });
+  }
+
+  return globalForPrisma.prisma;
 }
