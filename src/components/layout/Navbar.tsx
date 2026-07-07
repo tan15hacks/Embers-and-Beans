@@ -28,7 +28,7 @@ export function Navbar() {
         </nav>
 
         <Link
-          href="/menu"
+          href="/contact"
           className="hidden rounded-full bg-[#2B1E18] px-6 py-3 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A] md:inline-flex"
         >
           Order Ahead
@@ -38,6 +38,7 @@ export function Navbar() {
           type="button"
           aria-label="Toggle navigation menu"
           aria-expanded={isOpen}
+          aria-controls="mobile-navigation"
           onClick={() => setIsOpen((current) => !current)}
           className="inline-flex size-11 items-center justify-center rounded-full border border-[#2B1E18]/10 text-[#2B1E18] transition hover:bg-[#2B1E18]/5 md:hidden"
         >
@@ -46,7 +47,7 @@ export function Navbar() {
       </Container>
 
       {isOpen && (
-        <div className="border-t border-[#2B1E18]/10 bg-[#F8F4EF] md:hidden">
+        <div id="mobile-navigation" className="border-t border-[#2B1E18]/10 bg-[#F8F4EF] md:hidden">
           <Container className="flex flex-col gap-3 py-5">
             {navLinks.map((link) => (
               <Link
@@ -60,7 +61,7 @@ export function Navbar() {
             ))}
 
             <Link
-              href="/menu"
+              href="/contact"
               onClick={() => setIsOpen(false)}
               className="mt-2 inline-flex items-center justify-center rounded-full bg-[#2B1E18] px-6 py-3 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
             >
