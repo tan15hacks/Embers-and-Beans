@@ -60,7 +60,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${cormorant.variable} ${manrope.variable}`}>
-        {children}
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
+        <div id="main-content">{children}</div>
       </body>
     </html>
   );
