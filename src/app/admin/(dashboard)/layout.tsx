@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Coffee, LayoutDashboard, LogOut, Mail, MessageSquareText, Settings } from "lucide-react";
+import { Coffee, LayoutDashboard, LogOut, Mail, MessageSquareText, Settings, ShoppingBag } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { clearAdminSession, requireAdmin } from "@/lib/admin-auth";
 
@@ -14,6 +14,7 @@ async function logoutAction() {
 const adminLinks = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/menu", label: "Menu", icon: Coffee },
+  { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/messages", label: "Messages", icon: Mail },
   { href: "/admin/faqs", label: "FAQs", icon: MessageSquareText },
   { href: "/admin/settings", label: "Settings", icon: Settings },
