@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
-import { Mail, Phone, ShoppingBag } from "lucide-react";
+import { Mail, MessageSquareText, Phone, ShoppingBag } from "lucide-react";
 import { getPrisma } from "@/lib/db";
 import { formatPesoAmount } from "@/lib/money";
 import { sendOrderStatusNotifications } from "@/lib/order-notifications";
@@ -14,6 +14,15 @@ const statusLabels: Record<string, string> = {
   ready: "Ready",
   completed: "Completed",
   cancelled: "Cancelled",
+};
+
+const statusCustomerMessages: Record<string, string> = {
+  new: "your pickup order request has been received",
+  confirmed: "your pickup order has been confirmed",
+  preparing: "your pickup order is now being prepared",
+  ready: "your pickup order is ready for pickup",
+  completed: "your pickup order has been completed. Thank you",
+  cancelled: "your pickup order has been cancelled. Please contact us for details",
 };
 
 const paymentLabels: Record<string, string> = {
@@ -87,6 +96,29 @@ function formatPickupTime(value: string) {
     dateStyle: "medium",
     timeStyle: "short",
   });
+}
+
+function getFirstName(name: string) {
+  return name.trim().split(/\s+/)[0] || "there";
+}
+
+function getOrderItemsText(order: OrderRecord) {
+  return order.items
+    .map((item) => `${item.quantity}x ${item.name}`)
+    .join(", ");
+}
+
+function getManualSmsMessage(order: OrderRecord) {
+  const statusText = statusCustomerMessages[order.status] ?? `your pickup order status is now ${order.status}`;
+  const paymentLabel = paymentLabels[order.paymentMethod] ?? order.paymentMethod;
+  const itemText = getOrderItemsText(order);
+
+  return `Hi ${getFirstName(order.customerName)}, ${statusText}. Pickup: ${formatPickupTime(order.pickupTime)}. Total: ${formatPesoAmount(order.totalAmount)}. Payment: ${paymentLabel}. Items: ${itemText}. - Ember & Bean`;
+}
+
+function getSmsHref(order: OrderRecord) {
+  const phone = order.customerPhone?.trim() ?? "";
+  return `sms:${phone}?&body=${encodeURIComponent(getManualSmsMessage(order))}`;
 }
 
 async function updateOrderStatus(formData: FormData) {
@@ -313,12 +345,20 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
                     </Link>
                   )}
                   {order.customerPhone && (
-                    <Link
-                      href={`tel:${order.customerPhone}`}
-                      className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
-                    >
-                      <Phone className="mr-2" size={16} /> Call
-                    </Link>
+                    <>
+                      <Link
+                        href={getSmsHref(order)}
+                        className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
+                      >
+                        <MessageSquareText className="mr-2" size={16} /> SMS
+                      </Link>
+                      <Link
+                        href={`tel:${order.customerPhone}`}
+                        className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
+                      >
+                        <Phone className="mr-2" size={16} /> Call
+                      </Link>
+                    </>
                   )}
                 </div>
               </div>
