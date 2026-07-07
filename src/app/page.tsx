@@ -1,4 +1,5 @@
 import { CafeExperience } from "@/components/home/CafeExperience";
+import { FAQSection } from "@/components/home/FAQSection";
 import { FeaturedCoffee } from "@/components/home/FeaturedCoffee";
 import { FreshlyBaked } from "@/components/home/FreshlyBaked";
 import { Hero } from "@/components/home/Hero";
@@ -20,6 +21,7 @@ export default function Home() {
       <FreshlyBaked />
       <CafeExperience />
       <Testimonials />
+      <FAQSection />
       <VisitNewsletter />
       <Footer />
     </main>
