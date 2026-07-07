@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
-import { Mail, ShoppingBag } from "lucide-react";
+import { Mail, Phone, ShoppingBag } from "lucide-react";
 import { getPrisma } from "@/lib/db";
 import { formatPesoAmount } from "@/lib/money";
+import { sendOrderStatusNotifications } from "@/lib/order-notifications";
 
 const orderStatuses = ["new", "confirmed", "preparing", "ready", "completed", "cancelled"];
 
@@ -13,6 +14,11 @@ const statusLabels: Record<string, string> = {
   ready: "Ready",
   completed: "Completed",
   cancelled: "Cancelled",
+};
+
+const paymentLabels: Record<string, string> = {
+  gcash: "GCash",
+  bank: "Bank Transfer",
 };
 
 const statusClasses: Record<string, string> = {
@@ -41,9 +47,10 @@ type OrderItemRecord = {
 type OrderRecord = {
   id: string;
   customerName: string;
-  customerEmail: string;
+  customerEmail: string | null;
   customerPhone: string | null;
   pickupTime: string;
+  paymentMethod: string;
   notes: string | null;
   status: string;
   totalAmount: number;
@@ -53,7 +60,7 @@ type OrderRecord = {
 
 type OrderDelegate = {
   findMany: (args: unknown) => Promise<OrderRecord[]>;
-  update: (args: { where: { id: string }; data: { status: string } }) => Promise<unknown>;
+  update: (args: unknown) => Promise<OrderRecord>;
 };
 
 type PrismaWithOrder = ReturnType<typeof getPrisma> & {
@@ -67,6 +74,19 @@ function getString(formData: FormData, key: string) {
 function getOrderDelegate() {
   const prisma = getPrisma() as PrismaWithOrder;
   return prisma.order ?? null;
+}
+
+function formatPickupTime(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("en-PH", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
 async function updateOrderStatus(formData: FormData) {
@@ -85,9 +105,21 @@ async function updateOrderStatus(formData: FormData) {
     return;
   }
 
-  await order.update({
+  const updatedOrder = await order.update({
     where: { id },
     data: { status },
+    include: { items: true },
+  });
+
+  await sendOrderStatusNotifications({
+    id: updatedOrder.id,
+    customerName: updatedOrder.customerName,
+    customerEmail: updatedOrder.customerEmail,
+    customerPhone: updatedOrder.customerPhone,
+    pickupTime: formatPickupTime(updatedOrder.pickupTime),
+    paymentMethod: updatedOrder.paymentMethod,
+    totalAmount: updatedOrder.totalAmount,
+    status: updatedOrder.status,
   });
 
   revalidatePath("/admin/orders");
@@ -200,11 +232,19 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
                         {statusLabels[order.status] ?? order.status}
                       </span>
                     </div>
-                    <p className="mt-2 text-sm text-[#4A342A]/65">
-                      {order.customerEmail} {order.customerPhone ? `· ${order.customerPhone}` : ""}
+                    <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-[#4A342A]/75">
+                      <Phone size={15} /> {order.customerPhone || "No phone"}
                     </p>
+                    {order.customerEmail && (
+                      <p className="mt-2 text-sm text-[#4A342A]/55">
+                        {order.customerEmail}
+                      </p>
+                    )}
                     <p className="mt-2 text-sm font-semibold text-[#4A342A]/75">
-                      Pickup: {order.pickupTime}
+                      Pickup: {formatPickupTime(order.pickupTime)}
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[#B7793C]">
+                      Payment: {paymentLabels[order.paymentMethod] ?? order.paymentMethod}
                     </p>
                   </div>
                 </div>
@@ -247,6 +287,7 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
                       Update status
                     </label>
                     <select
+                      key={`${order.id}-${order.status}`}
                       id={`${order.id}-status`}
                       name="status"
                       defaultValue={order.status}
@@ -262,12 +303,24 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
                   </button>
                 </form>
 
-                <Link
-                  href={`mailto:${order.customerEmail}`}
-                  className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
-                >
-                  <Mail className="mr-2" size={16} /> Reply
-                </Link>
+                <div className="flex flex-wrap gap-3">
+                  {order.customerEmail && (
+                    <Link
+                      href={`mailto:${order.customerEmail}`}
+                      className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
+                    >
+                      <Mail className="mr-2" size={16} /> Email
+                    </Link>
+                  )}
+                  {order.customerPhone && (
+                    <Link
+                      href={`tel:${order.customerPhone}`}
+                      className="inline-flex h-11 items-center justify-center rounded-full border border-[#2B1E18]/10 px-6 text-sm font-semibold text-[#4A342A]/70 transition hover:bg-[#F8F4EF]"
+                    >
+                      <Phone className="mr-2" size={16} /> Call
+                    </Link>
+                  )}
+                </div>
               </div>
             </article>
           ))
