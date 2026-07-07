@@ -2,13 +2,19 @@ import Link from "next/link";
 import { ArrowRight, Coffee, Mail, MessageSquareText, Settings, ShoppingBag } from "lucide-react";
 import { getPrisma } from "@/lib/db";
 
+type PrismaWithOptionalOrder = ReturnType<typeof getPrisma> & {
+  order?: {
+    count: () => Promise<number>;
+  };
+};
+
 async function getDashboardStats() {
   try {
-    const prisma = getPrisma();
+    const prisma = getPrisma() as PrismaWithOptionalOrder;
 
     const [menuItems, orders, messages, faqs, settings] = await Promise.all([
       prisma.menuItem.count(),
-      prisma.order.count(),
+      prisma.order ? prisma.order.count() : Promise.resolve(0),
       prisma.contactMessage.count(),
       prisma.faq.count(),
       prisma.siteSetting.count(),
