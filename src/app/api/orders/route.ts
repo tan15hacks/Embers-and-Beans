@@ -7,6 +7,7 @@ type OrderPayload = {
   customerEmail?: string;
   customerPhone?: string;
   pickupTime?: string;
+  paymentMethod?: string;
   notes?: string;
   items?: Array<{
     id?: string;
@@ -18,9 +19,10 @@ type OrderDelegate = {
   create: (args: {
     data: {
       customerName: string;
-      customerEmail: string;
+      customerEmail: string | null;
       customerPhone: string | null;
       pickupTime: string;
+      paymentMethod: string;
       notes: string | null;
       totalAmount: number;
       items: {
@@ -41,6 +43,8 @@ type PrismaWithOrder = ReturnType<typeof getPrisma> & {
   order?: OrderDelegate;
 };
 
+const paymentMethods = ["gcash", "bank"];
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as OrderPayload;
@@ -48,6 +52,9 @@ export async function POST(request: Request) {
     const customerEmail = String(body.customerEmail ?? "").trim();
     const customerPhone = String(body.customerPhone ?? "").trim();
     const pickupTime = String(body.pickupTime ?? "").trim();
+    const paymentMethod = paymentMethods.includes(String(body.paymentMethod))
+      ? String(body.paymentMethod)
+      : "gcash";
     const notes = String(body.notes ?? "").trim();
     const submittedItems = Array.isArray(body.items) ? body.items : [];
 
@@ -55,12 +62,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Please enter your name." }, { status: 400 });
     }
 
-    if (!/^\S+@\S+\.\S+$/.test(customerEmail)) {
-      return NextResponse.json({ message: "Please enter a valid email address." }, { status: 400 });
+    if (customerPhone.length < 7) {
+      return NextResponse.json({ message: "Please enter your phone number." }, { status: 400 });
     }
 
-    if (pickupTime.length < 3) {
-      return NextResponse.json({ message: "Please enter your preferred pickup time." }, { status: 400 });
+    if (customerEmail && !/^\S+@\S+\.\S+$/.test(customerEmail)) {
+      return NextResponse.json({ message: "Please enter a valid email address or leave it blank." }, { status: 400 });
+    }
+
+    if (!pickupTime || Number.isNaN(Date.parse(pickupTime))) {
+      return NextResponse.json({ message: "Please select your pickup date and time." }, { status: 400 });
     }
 
     const requestedItems = submittedItems
@@ -130,9 +141,10 @@ export async function POST(request: Request) {
     const order = await prisma.order.create({
       data: {
         customerName,
-        customerEmail,
-        customerPhone: customerPhone || null,
+        customerEmail: customerEmail || null,
+        customerPhone,
         pickupTime,
+        paymentMethod,
         notes: notes || null,
         totalAmount,
         items: {
@@ -142,7 +154,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({
-      message: "Order request received. We will confirm availability by email.",
+      message: "Order request received. We will confirm availability by phone or email.",
       orderId: order.id,
       totalAmount,
     });
