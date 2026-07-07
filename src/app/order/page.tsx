@@ -8,7 +8,7 @@ import { OrderForm, type OrderMenuItem } from "@/components/order/OrderForm";
 import { Reveal } from "@/components/shared/Reveal";
 import { siteConfig } from "@/data/site";
 import { getPrisma } from "@/lib/db";
-import { parsePesoAmount } from "@/lib/money";
+import { normalizePesoInput, parsePesoAmount } from "@/lib/money";
 
 export const metadata: Metadata = {
   title: "Order Ahead",
@@ -30,14 +30,18 @@ async function getOrderMenuItems(): Promise<OrderMenuItem[]> {
       orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { createdAt: "desc" }],
     });
 
-    return items.map((item) => ({
-      id: item.id,
-      name: item.name,
-      description: item.description,
-      price: item.price,
-      category: item.category,
-      unitPrice: parsePesoAmount(item.price),
-    }));
+    return items.map((item) => {
+      const price = normalizePesoInput(item.price);
+
+      return {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        price,
+        category: item.category,
+        unitPrice: parsePesoAmount(price),
+      };
+    });
   } catch (error) {
     console.error("Order page menu load error", error);
     return [];
