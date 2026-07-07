@@ -9,6 +9,7 @@ export const siteConfig = {
   phone: "+63 912 345 6789",
   phoneHref: "tel:+639123456789",
   instagram: "@emberandbean",
+  instagramHref: "https://www.instagram.com/emberandbean/",
   hours: "Open daily · 7:00 AM – 9:00 PM",
   ogImage: "/images/hero/hero-cafe.png",
 };
