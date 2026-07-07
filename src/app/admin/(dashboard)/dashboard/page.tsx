@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { ArrowRight, Coffee, Mail, MessageSquareText, Settings } from "lucide-react";
+import { ArrowRight, Coffee, Mail, MessageSquareText, Settings, ShoppingBag } from "lucide-react";
 import { getPrisma } from "@/lib/db";
 
 async function getDashboardStats() {
   try {
     const prisma = getPrisma();
 
-    const [menuItems, messages, faqs, settings] = await Promise.all([
+    const [menuItems, orders, messages, faqs, settings] = await Promise.all([
       prisma.menuItem.count(),
+      prisma.order.count(),
       prisma.contactMessage.count(),
       prisma.faq.count(),
       prisma.siteSetting.count(),
@@ -16,6 +17,7 @@ async function getDashboardStats() {
     return {
       databaseReady: true,
       menuItems,
+      orders,
       messages,
       faqs,
       settings,
@@ -26,6 +28,7 @@ async function getDashboardStats() {
     return {
       databaseReady: false,
       menuItems: 0,
+      orders: 0,
       messages: 0,
       faqs: 0,
       settings: 0,
@@ -41,8 +44,14 @@ const quickActions = [
     icon: Coffee,
   },
   {
+    title: "Review orders",
+    description: "Confirm pickup requests and move orders through the shop workflow.",
+    href: "/admin/orders",
+    icon: ShoppingBag,
+  },
+  {
     title: "Read messages",
-    description: "Review pickup orders, visit questions, and event inquiries.",
+    description: "Review visit questions, event inquiries, and general customer notes.",
     href: "/admin/messages",
     icon: Mail,
   },
@@ -65,6 +74,7 @@ export default async function AdminDashboardPage() {
 
   const statCards = [
     { label: "Menu items", value: stats.menuItems },
+    { label: "Orders", value: stats.orders },
     { label: "Messages", value: stats.messages },
     { label: "FAQs", value: stats.faqs },
     { label: "Settings", value: stats.settings },
@@ -81,15 +91,15 @@ export default async function AdminDashboardPage() {
             Manage Ember & Bean.
           </h1>
           <p className="mt-5 max-w-2xl leading-8 text-[#4A342A]/75">
-            This is the foundation for editing content, checking customer messages, and turning the static café website into a client-ready admin system.
+            Edit content, manage pickup orders, check customer messages, and run the café site from one place.
           </p>
         </div>
 
         <Link
-          href="/contact"
+          href="/order"
           className="inline-flex h-12 items-center justify-center rounded-full bg-[#2B1E18] px-6 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
         >
-          Test public form
+          Test order page
         </Link>
       </div>
 
@@ -99,7 +109,7 @@ export default async function AdminDashboardPage() {
         </div>
       )}
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
         {statCards.map((item) => (
           <article
             key={item.label}
