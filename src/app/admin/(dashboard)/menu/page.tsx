@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
-import { Coffee, Plus, Save, Trash2 } from "lucide-react";
+import { Coffee, Plus, Save, Sparkles, Trash2 } from "lucide-react";
+import { menuSections } from "@/data/menu";
 import { getPrisma } from "@/lib/db";
 
 const categories = [
@@ -10,6 +11,20 @@ const categories = [
   "Non-Coffee",
 ];
 
+const starterMenuItems = menuSections.flatMap((section) =>
+  section.items.map((item, index) => ({
+    name: item.name,
+    description: item.description,
+    price: item.price,
+    category: section.title,
+    image: item.image ?? null,
+    imageAlt: item.imageAlt ?? null,
+    sortOrder: index,
+    featured: section.title === "Signature Sips",
+    active: true,
+  })),
+);
+
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
@@ -17,6 +32,41 @@ function getString(formData: FormData, key: string) {
 function getNumber(formData: FormData, key: string) {
   const value = Number(formData.get(key));
   return Number.isFinite(value) ? value : 0;
+}
+
+function revalidateMenuPaths() {
+  revalidatePath("/admin/menu");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/menu");
+  revalidatePath("/");
+}
+
+async function importStarterMenu() {
+  "use server";
+
+  const prisma = getPrisma();
+  const existingItems = await prisma.menuItem.findMany({
+    select: {
+      name: true,
+      category: true,
+    },
+  });
+
+  const existingKeys = new Set(
+    existingItems.map((item) => `${item.category.toLowerCase()}::${item.name.toLowerCase()}`),
+  );
+
+  const itemsToCreate = starterMenuItems.filter(
+    (item) => !existingKeys.has(`${item.category.toLowerCase()}::${item.name.toLowerCase()}`),
+  );
+
+  if (itemsToCreate.length > 0) {
+    await prisma.menuItem.createMany({
+      data: itemsToCreate,
+    });
+  }
+
+  revalidateMenuPaths();
 }
 
 async function createMenuItem(formData: FormData) {
@@ -38,9 +88,7 @@ async function createMenuItem(formData: FormData) {
     },
   });
 
-  revalidatePath("/admin/menu");
-  revalidatePath("/menu");
-  revalidatePath("/");
+  revalidateMenuPaths();
 }
 
 async function updateMenuItem(formData: FormData) {
@@ -64,9 +112,7 @@ async function updateMenuItem(formData: FormData) {
     },
   });
 
-  revalidatePath("/admin/menu");
-  revalidatePath("/menu");
-  revalidatePath("/");
+  revalidateMenuPaths();
 }
 
 async function deleteMenuItem(formData: FormData) {
@@ -79,9 +125,7 @@ async function deleteMenuItem(formData: FormData) {
     where: { id },
   });
 
-  revalidatePath("/admin/menu");
-  revalidatePath("/menu");
-  revalidatePath("/");
+  revalidateMenuPaths();
 }
 
 async function getMenuItems() {
@@ -122,6 +166,36 @@ export default async function AdminMenuPage() {
           {menuItems.length} database item{menuItems.length === 1 ? "" : "s"}
         </div>
       </div>
+
+      <section className="mt-10 rounded-[2rem] border border-[#2B1E18]/10 bg-[#2B1E18] p-6 text-[#FFFDFB] shadow-[0_24px_90px_rgba(43,30,24,0.16)] sm:p-8">
+        <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="flex items-start gap-4">
+            <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-[#E5C7A1]/15 text-[#E5C7A1]">
+              <Sparkles size={26} />
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#E5C7A1]">
+                Starter Import
+              </p>
+              <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold">
+                Load the current menu into Neon.
+              </h2>
+              <p className="mt-3 max-w-2xl leading-7 text-[#F8F4EF]/70">
+                This imports the existing hardcoded drinks and pastries as editable database items. It skips items that already exist with the same name and category.
+              </p>
+            </div>
+          </div>
+
+          <form action={importStarterMenu}>
+            <button
+              type="submit"
+              className="inline-flex h-14 w-full items-center justify-center rounded-full bg-[#F8F4EF] px-8 text-sm font-semibold text-[#2B1E18] transition hover:bg-[#E5C7A1] lg:w-auto"
+            >
+              <Sparkles className="mr-2" size={18} /> Import Starter Menu
+            </button>
+          </form>
+        </div>
+      </section>
 
       <section className="mt-10 rounded-[2rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-6 shadow-[0_18px_70px_rgba(43,30,24,0.06)] sm:p-8">
         <div className="mb-8 flex items-start gap-4">
@@ -198,7 +272,7 @@ export default async function AdminMenuPage() {
       <section className="mt-10 space-y-5">
         {menuItems.length === 0 ? (
           <div className="rounded-[2rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-8 text-[#4A342A]/75 shadow-[0_18px_70px_rgba(43,30,24,0.06)]">
-            No database menu items yet. Add your first item above.
+            No database menu items yet. Import the starter menu above or add your first item manually.
           </div>
         ) : (
           menuItems.map((item) => (
