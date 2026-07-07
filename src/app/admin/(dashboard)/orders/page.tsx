@@ -30,8 +30,43 @@ type AdminOrdersPageProps = {
   }>;
 };
 
+type OrderItemRecord = {
+  id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  lineTotal: number;
+};
+
+type OrderRecord = {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string | null;
+  pickupTime: string;
+  notes: string | null;
+  status: string;
+  totalAmount: number;
+  createdAt: Date;
+  items: OrderItemRecord[];
+};
+
+type OrderDelegate = {
+  findMany: (args: unknown) => Promise<OrderRecord[]>;
+  update: (args: { where: { id: string }; data: { status: string } }) => Promise<unknown>;
+};
+
+type PrismaWithOrder = ReturnType<typeof getPrisma> & {
+  order?: OrderDelegate;
+};
+
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
+}
+
+function getOrderDelegate() {
+  const prisma = getPrisma() as PrismaWithOrder;
+  return prisma.order ?? null;
 }
 
 async function updateOrderStatus(formData: FormData) {
@@ -44,8 +79,13 @@ async function updateOrderStatus(formData: FormData) {
     return;
   }
 
-  const prisma = getPrisma();
-  await prisma.order.update({
+  const order = getOrderDelegate();
+
+  if (!order) {
+    return;
+  }
+
+  await order.update({
     where: { id },
     data: { status },
   });
@@ -56,9 +96,13 @@ async function updateOrderStatus(formData: FormData) {
 
 async function getOrders(status?: string) {
   try {
-    const prisma = getPrisma();
+    const order = getOrderDelegate();
 
-    return await prisma.order.findMany({
+    if (!order) {
+      return { databaseReady: false, orders: [] as OrderRecord[] };
+    }
+
+    const orders = await order.findMany({
       where: status && status !== "all" ? { status } : undefined,
       include: {
         items: true,
@@ -68,16 +112,18 @@ async function getOrders(status?: string) {
       },
       take: 100,
     });
+
+    return { databaseReady: true, orders };
   } catch (error) {
     console.error("Admin orders error", error);
-    return [];
+    return { databaseReady: false, orders: [] as OrderRecord[] };
   }
 }
 
 export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageProps) {
   const params = (await searchParams) ?? {};
   const selectedStatus = params.status ?? "all";
-  const orders = await getOrders(selectedStatus);
+  const { databaseReady, orders } = await getOrders(selectedStatus);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -101,6 +147,12 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
           Test order page
         </Link>
       </div>
+
+      {!databaseReady && (
+        <div className="mt-8 rounded-[2rem] border border-[#9B3A2F]/20 bg-[#9B3A2F]/10 p-5 text-sm font-semibold leading-7 text-[#9B3A2F]">
+          Ordering database is not ready yet. Run <code>npx prisma generate</code> and <code>npx prisma db push</code>, then restart the dev server.
+        </div>
+      )}
 
       <section className="mt-8 rounded-[1.5rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-5 shadow-[0_18px_70px_rgba(43,30,24,0.05)]">
         <form method="get" className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
@@ -129,7 +181,7 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
       <section className="mt-8 space-y-5">
         {orders.length === 0 ? (
           <div className="rounded-[2rem] border border-[#2B1E18]/10 bg-[#FFFDFB] p-8 text-[#4A342A]/75 shadow-[0_18px_70px_rgba(43,30,24,0.06)]">
-            No orders yet. Submit a test pickup order from the public order page.
+            {databaseReady ? "No orders yet. Submit a test pickup order from the public order page." : "Orders will appear here after the ordering database is synced."}
           </div>
         ) : (
           orders.map((order) => (
