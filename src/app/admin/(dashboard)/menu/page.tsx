@@ -375,12 +375,12 @@ export default async function AdminMenuPage({ searchParams }: AdminMenuPageProps
 
       <section className="mt-6 overflow-hidden rounded-[1.5rem] border border-[#2B1E18]/10 bg-[#FFFDFB] shadow-[0_18px_70px_rgba(43,30,24,0.06)]">
         <div className="border-b border-[#2B1E18]/10 px-5 py-4">
-          <div className="hidden grid-cols-[1.4fr_0.9fr_0.5fr_0.8fr_0.6fr] gap-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#4A342A]/50 lg:grid">
+          <div className="hidden grid-cols-[1.4fr_0.9fr_0.5fr_0.8fr_0.85fr] gap-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#4A342A]/50 lg:grid">
             <span>Item</span>
             <span>Category</span>
             <span>Price</span>
             <span>Status</span>
-            <span className="text-right">Edit</span>
+            <span className="text-right">Actions</span>
           </div>
           <h2 className="font-[var(--font-display)] text-3xl font-semibold lg:hidden">
             Menu items
@@ -399,7 +399,7 @@ export default async function AdminMenuPage({ searchParams }: AdminMenuPageProps
           <div className="divide-y divide-[#2B1E18]/10">
             {menuItems.map((item) => (
               <details key={item.id} className="group">
-                <summary className="grid cursor-pointer list-none gap-4 px-5 py-4 transition hover:bg-[#F8F4EF]/70 lg:grid-cols-[1.4fr_0.9fr_0.5fr_0.8fr_0.6fr] lg:items-center [&::-webkit-details-marker]:hidden">
+                <summary className="grid cursor-pointer list-none gap-4 px-5 py-4 transition hover:bg-[#F8F4EF]/70 lg:grid-cols-[1.4fr_0.9fr_0.5fr_0.8fr_0.85fr] lg:items-center [&::-webkit-details-marker]:hidden">
                   <div className="min-w-0">
                     <div className="flex items-center gap-3">
                       <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#B7793C]/12 text-[#B7793C]">
@@ -433,9 +433,20 @@ export default async function AdminMenuPage({ searchParams }: AdminMenuPageProps
                     )}
                   </div>
 
-                  <span className="inline-flex h-10 items-center justify-center rounded-full bg-[#2B1E18] px-4 text-sm font-semibold text-[#FFFDFB] transition group-open:bg-[#B7793C] lg:justify-self-end">
-                    Edit
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                    <span className="inline-flex h-10 items-center justify-center rounded-full bg-[#2B1E18] px-4 text-sm font-semibold text-[#FFFDFB] transition group-open:bg-[#B7793C]">
+                      Edit
+                    </span>
+                    <form action={deleteMenuItem}>
+                      <input type="hidden" name="id" value={item.id} />
+                      <button
+                        type="submit"
+                        className="inline-flex h-10 items-center justify-center rounded-full border border-[#9B3A2F]/20 px-4 text-sm font-semibold text-[#9B3A2F] transition hover:bg-[#9B3A2F]/10"
+                      >
+                        <Trash2 className="mr-2" size={15} /> Delete
+                      </button>
+                    </form>
+                  </div>
                 </summary>
 
                 <div className="border-t border-[#2B1E18]/10 bg-[#F8F4EF] px-5 py-5">
