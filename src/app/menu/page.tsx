@@ -15,6 +15,7 @@ import {
 } from "@/data/menu";
 import { siteConfig } from "@/data/site";
 import { getPrisma } from "@/lib/db";
+import { normalizePesoInput } from "@/lib/money";
 
 export const metadata: Metadata = {
   title: "Menu",
@@ -80,7 +81,7 @@ async function getPublicMenuData(): Promise<PublicMenuData> {
     const mappedItems = items.map((item) => ({
       name: item.name,
       description: item.description,
-      price: item.price,
+      price: normalizePesoInput(item.price),
       image: item.image ?? undefined,
       imageAlt: item.imageAlt ?? undefined,
       category: item.category,
@@ -227,15 +228,15 @@ export default async function MenuPage() {
 
                 <p className="mt-4 leading-7 text-[#4A342A]/75">
                   Prices are listed in Philippine pesos. For advance orders, use
-                  the contact form and we will confirm availability, pickup
+                  the order page and we will confirm availability, pickup
                   time, and total before preparing your drinks.
                 </p>
 
                 <Link
-                  href="/contact"
+                  href="/order"
                   className="mt-8 inline-flex h-14 items-center justify-center rounded-full bg-[#2B1E18] px-7 text-sm font-semibold text-[#FFFDFB] transition hover:bg-[#4A342A]"
                 >
-                  Contact the Shop <ArrowRight className="ml-2" size={18} />
+                  Order Ahead <ArrowRight className="ml-2" size={18} />
                 </Link>
               </aside>
             </Reveal>
