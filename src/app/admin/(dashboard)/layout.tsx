@@ -27,7 +27,7 @@ export default async function AdminDashboardLayout({
   return (
     <main className="min-h-screen bg-[#F8F4EF] text-[#2B1E18]">
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
-        <aside className="border-b border-[#2B1E18]/10 bg-[#2B1E18] p-6 text-[#FFFDFB] lg:border-b-0 lg:border-r lg:border-[#2B1E18]/10">
+        <aside className="border-b border-[#2B1E18]/10 bg-[#2B1E18] p-6 text-[#FFFDFB] lg:sticky lg:top-0 lg:h-screen lg:self-start lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-[#2B1E18]/10">
           <div className="flex items-center justify-between gap-4 lg:block">
             <Logo light />
             <Link
