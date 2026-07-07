@@ -54,6 +54,30 @@ const paymentOptions = [
   },
 ];
 
+function toLocalDateTimeInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function getTodayStartDateTimeInputValue() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return toLocalDateTimeInputValue(today);
+}
+
+function getLocalDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 export function OrderForm({ items }: OrderFormProps) {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [details, setDetails] = useState<CustomerDetails>(initialDetails);
@@ -62,6 +86,7 @@ export function OrderForm({ items }: OrderFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState("");
+  const minPickupDateTime = useMemo(() => getTodayStartDateTimeInputValue(), []);
 
   const categories = useMemo(
     () => Array.from(new Set(items.map((item) => item.category))),
@@ -111,6 +136,10 @@ export function OrderForm({ items }: OrderFormProps) {
 
     if (!details.pickupTime) {
       return "Please select your pickup date and time.";
+    }
+
+    if (details.pickupTime.slice(0, 10) < getLocalDateInputValue(new Date())) {
+      return "Pickup date cannot be in the past. Please choose today or a future date.";
     }
 
     return "";
@@ -286,7 +315,7 @@ export function OrderForm({ items }: OrderFormProps) {
             </div>
             <div>
               <label htmlFor="pickupTime" className={labelClass}>Pickup date and time</label>
-              <input id="pickupTime" type="datetime-local" required className={inputClass} value={details.pickupTime} onChange={(event) => updateDetails("pickupTime", event.target.value)} />
+              <input id="pickupTime" type="datetime-local" min={minPickupDateTime} required className={inputClass} value={details.pickupTime} onChange={(event) => updateDetails("pickupTime", event.target.value)} />
             </div>
             <div>
               <label htmlFor="notes" className={labelClass}>Notes optional</label>
