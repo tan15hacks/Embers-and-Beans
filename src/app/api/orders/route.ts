@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/db";
-import { parsePesoAmount } from "@/lib/money";
+import { normalizePesoInput, parsePesoAmount } from "@/lib/money";
 
 type OrderPayload = {
   customerName?: string;
@@ -12,6 +12,33 @@ type OrderPayload = {
     id?: string;
     quantity?: number;
   }>;
+};
+
+type OrderDelegate = {
+  create: (args: {
+    data: {
+      customerName: string;
+      customerEmail: string;
+      customerPhone: string | null;
+      pickupTime: string;
+      notes: string | null;
+      totalAmount: number;
+      items: {
+        create: Array<{
+          menuItemId: string;
+          name: string;
+          category: string;
+          unitPrice: number;
+          quantity: number;
+          lineTotal: number;
+        }>;
+      };
+    };
+  }) => Promise<{ id: string }>;
+};
+
+type PrismaWithOrder = ReturnType<typeof getPrisma> & {
+  order?: OrderDelegate;
 };
 
 export async function POST(request: Request) {
@@ -47,7 +74,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Please choose at least one item." }, { status: 400 });
     }
 
-    const prisma = getPrisma();
+    const prisma = getPrisma() as PrismaWithOrder;
+
+    if (!prisma.order) {
+      return NextResponse.json(
+        {
+          message:
+            "Ordering database is not ready yet. Run npx prisma generate and npx prisma db push, then restart the dev server.",
+        },
+        { status: 503 },
+      );
+    }
+
     const menuItems = await prisma.menuItem.findMany({
       where: {
         id: {
@@ -69,7 +107,7 @@ export async function POST(request: Request) {
         return [];
       }
 
-      const unitPrice = parsePesoAmount(menuItem.price);
+      const unitPrice = parsePesoAmount(normalizePesoInput(menuItem.price));
 
       return [
         {
